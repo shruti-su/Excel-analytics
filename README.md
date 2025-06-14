@@ -2,13 +2,13 @@
 # Docker 
 # install docker 
 https://www.docker.com/
-* build *
+* build 
   =
   docker compose build
-* run *
+* run 
   =
   docker compose up -d
 # react running on
-http://localhost:3000/
+http://localhost:5173/
 # server running on 
 http://localhost:5000/
