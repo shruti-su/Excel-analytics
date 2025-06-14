@@ -1,13 +1,13 @@
-# server/Dockerfile
-FROM node:20-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
 
-EXPOSE 5000
+# Ensure environment variable is available
+ENV NODE_ENV=production
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "index.js"]
