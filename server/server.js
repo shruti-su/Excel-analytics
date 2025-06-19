@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const userRoutes = require('./routes/user');
 const dotenv = require('dotenv');
 const studentRoutes = require('./routes/student');
+const EmployeeRoutes = require('./routes/employee')
 const cors = require('cors'); // <--- ADD THIS LINE: Import the cors package
 
 dotenv.config();
@@ -38,6 +39,7 @@ app.use(cors());
 
 app.use('/api', userRoutes);
 app.use('/student', studentRoutes);
+app.use('/employee', EmployeeRoutes);
 
 
 app.listen(PORT, () => {
