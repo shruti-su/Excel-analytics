@@ -1,13 +1,15 @@
-FROM node:18-alpine
+# server/Dockerfile
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package*.json ./
+
+# Install all deps including devDependencies
 RUN npm install
 
 COPY . .
 
-# Ensure environment variable is available
-ENV NODE_ENV=production
+EXPOSE 3000
 
-CMD ["node", "index.js"]
+CMD ["npm", "run", "start"]
