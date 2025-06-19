@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-router.get('/test', async (req, res) => {
+router.get('/set', async (req, res) => {
     const user = new User({ name: 'Kirito', email: 'kirito@example.com' });
     await user.save();
     res.send('User saved');
