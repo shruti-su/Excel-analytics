@@ -1,5 +1,4 @@
 // src/api/userService.js
-import { get } from '../../../../server/routes/employee';
 import api from './../axiosConfig'; // Import your configured Axios instance
 
 // Base path for user-related endpoints
@@ -101,4 +100,4 @@ const EmplyeeService = {
     // },
 };
 
-export default userService;
+export default EmplyeeService;
