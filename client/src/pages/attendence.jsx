@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import EmplyeeService from '../services/api/empAtt';
+import { Button } from "@material-tailwind/react";
+
 
 
 function Attendence() {
@@ -86,6 +88,7 @@ function Attendence() {
                     >
                         Submit
                     </button>
+                    <Button>sd</Button>
                 </form>
                 <div className="w-full max-w-2xl">
                     <table className="min-w-full bg-white rounded-lg shadow overflow-hidden">
