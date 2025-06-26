@@ -7,11 +7,12 @@ import {
   Configurator,
   Footer,
 } from "/src/components/widgets/layout";
-import routes from "/src/router.jsx"; // Assuming this path is correct and it exports the array
 import {
   useMaterialTailwindController,
   setOpenConfigurator,
 } from "/src/components/context";
+import routes from "/src/router.jsx";
+
 
 export function Dashboard() {
   const [controller, dispatch] = useMaterialTailwindController();
@@ -42,32 +43,29 @@ export function Dashboard() {
           <Cog6ToothIcon className="w-5 h-5" />
         </IconButton>
 
-        {/* This is where the main change happens */}
         <Routes>
           {routes.map(
             ({ layout, pages }) => {
-              // Only process routes meant for the "dashboard" layout
               if (layout === "dashboard") {
                 return pages.map(({ path, element }, key) => (
-                  // IMPORTANT: For nested routes within a parent that uses "/*",
-                  // the `path` prop here should be relative.
-                  // For example, if parent is "/dashboard/*" and child path is "/home",
-                  // then the full URL becomes "/dashboard/home".
-                  // The `exact` prop is generally not needed in react-router-dom v6+
                   <Route key={key} path={path} element={element} />
                 ));
               }
               return null; // Don't render anything for non-dashboard layouts
             }
           )}
-          {/* Add a redirect for the base /dashboard path if you want /dashboard to go to /dashboard/home */}
-          <Route path="/" element={<Navigate to="/dashboard/home" replace />} />
-          {/* Or an index route if you want to render a specific component at /dashboard */}
-          {/* <Route index element={<Home />} /> */}
-
-          {/* Optional: Add a catch-all for paths within /dashboard/* that don't match */}
-          <Route path="*" element={<p>Dashboard Page Not Found (404)</p>} />
+          {/* <Route path="/" element={<Navigate to="/home" replace />} /> */}
+          {/* <Route path="*" element={<p>Dashboard Page Not Found (404)</p>} /> */}
         </Routes>
+      {/* <Routes>
+        {routes.map(
+          ({ layout, pages }) =>
+            layout === "auth" &&
+            pages.map(({ path, element }) => (
+              <Route exact path={path} element={element} />
+            ))
+        )}
+      </Routes> */}
 
         <div className="text-blue-gray-600">
           <Footer />

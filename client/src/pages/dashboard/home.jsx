@@ -23,7 +23,7 @@ import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 
 export function Home() {
   return (
-    <div className="mt-12">
+    <div className="mt-12 h-dvh">
       sumit
     </div>
   );
