@@ -6,7 +6,7 @@ import {
   DashboardNavbar,
   Configurator,
   Footer,
-} from "/src/components/widgets/layout";
+} from "/src/components/layouts/layout";
 import {
   useMaterialTailwindController,
   setOpenConfigurator,
@@ -57,15 +57,7 @@ export function Dashboard() {
           {/* <Route path="/" element={<Navigate to="/home" replace />} /> */}
           {/* <Route path="*" element={<p>Dashboard Page Not Found (404)</p>} /> */}
         </Routes>
-      {/* <Routes>
-        {routes.map(
-          ({ layout, pages }) =>
-            layout === "auth" &&
-            pages.map(({ path, element }) => (
-              <Route exact path={path} element={element} />
-            ))
-        )}
-      </Routes> */}
+      
 
         <div className="text-blue-gray-600">
           <Footer />
