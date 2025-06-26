@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 export function SignUp() {
   return (
-    <section className="flex m-8">
+    <section className="flex m-7">
             <div className="hidden w-2/5 h-full lg:block">
         <img
           src="/img/907931.jpg"
@@ -20,22 +20,57 @@ export function SignUp() {
       <div className="flex flex-col items-center justify-center w-full lg:w-3/5">
         <div className="text-center">
           <Typography variant="h2" className="mb-4 font-bold">Join Us Today</Typography>
-          <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">Enter your email and password to register.</Typography>
         </div>
         <form className="max-w-screen-lg mx-auto mt-8 mb-2 w-80 lg:w-1/2">
           <div className="flex flex-col gap-6 mb-1">
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
+              Your Name
+            </Typography>
+            <Input
+              size="sm"
+              placeholder="Your Name"
+              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+            />
+            <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Your email
             </Typography>
             <Input
-              size="lg"
+              size="sm"
               placeholder="name@mail.com"
               className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
             />
+            <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
+              Password
+            </Typography>
+            <Input
+              type="password"
+              size="sm"
+              placeholder="********"
+              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+            />
+             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
+              Confirm Password
+            </Typography>
+            <Input
+              type="password"
+              size="sm"
+              placeholder="********"
+              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+            />
           </div>
+          
           <Checkbox
             label={
               <Typography
@@ -74,10 +109,6 @@ export function SignUp() {
                 </defs>
               </svg>
               <span>Sign in With Google</span>
-            </Button>
-            <Button size="lg" color="white" className="flex items-center justify-center gap-2 shadow-md" fullWidth>
-              <img src="/img/twitter-logo.svg" height={24} width={24} alt="" />
-              <span>Sign in With Twitter</span>
             </Button>
           </div>
           <Typography variant="paragraph" className="mt-4 font-medium text-center text-blue-gray-500">
