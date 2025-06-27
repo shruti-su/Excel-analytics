@@ -6,12 +6,12 @@ const { check, validationResult } = require('express-validator'); // For input v
 const User = require('../models/User');
 const auth = require('../middleware/authMiddleware');
 
-router.post('/login',[
-    // Validation checks for login
-    check('email', 'Please include a valid email').isEmail(),
-    check('password', 'Password is required').exists(),
-    ],
-   async (req, res) => {
+router.post('/login', [
+  // Validation checks for login
+  check('email', 'Please include a valid email').isEmail(),
+  check('password', 'Password is required').exists(),
+],
+  async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -19,15 +19,15 @@ router.post('/login',[
     }
 
     const { email, password } = req.body;
-    
-    try {
-        // Check if user exists
-        let user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ msg: 'Invalid Credentials' }); // Use generic message for security
-        }
 
-         // Compare entered password with hashed password in DB
+    try {
+      // Check if user exists
+      let user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ msg: 'Invalid Credentials' }); // Use generic message for security
+      }
+
+      // Compare entered password with hashed password in DB
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({ msg: 'Invalid Credentials' });
@@ -36,10 +36,10 @@ router.post('/login',[
       // Create and return JWT
       const payload = {
         user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role, // Include role in the payload
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role, // Include role in the payload
         },
       };
 
@@ -48,24 +48,24 @@ router.post('/login',[
         process.env.JWT_SECRET,
         { expiresIn: '7d' }, // Token expires in 7 days (1 week)
         (err, token) => {
-        if (err) throw err;
-        res.json({ token, msg: 'Logged in successfully!' });
+          if (err) throw err;
+          res.json({ token, msg: 'Logged in successfully!' });
         }
       );
     }
     catch (err) {
-        console.error('❌ Error during login:', err);
-        res.status(500).json({ msg: 'Server error' });
+      console.error('❌ Error during login:', err);
+      res.status(500).json({ msg: 'Server error' });
     }
-}   
+  }
 );
 
-    
+
 
 
 // 📋 [GET] List all students
 router.post('/signup',
-     [
+  [
     // Validation checks
     check('name', 'Username is required').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
@@ -82,10 +82,10 @@ router.post('/signup',
 
 
     try {
-        // Check if user already exists (by email or username)
-        let user = await User.findOne({ $or: [{ email }, { name }] });
+      // Check if user already exists (by email or username)
+      let user = await User.findOne({ $or: [{ email }, { name }] });
       if (user) {
-        return res.status(400).json({ msg: 'User with that email or username already exists' });
+        return res.status(400).json({ warning: 'User with that email or username already exists' });
       }
 
 
@@ -100,33 +100,34 @@ router.post('/signup',
       const salt = await bcrypt.genSalt(10); // Generate a salt
       user.password = await bcrypt.hash(password, salt); // Hash the password with the salt
 
-        // Save user to the database
-        await user.save();
+      // Save user to the database
+      await user.save();
 
-        // Create and return JWT
-        const payload = {
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role, // Include role in the payload
-            },
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' }, // Token expires in 7 days (1 week)
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token, msg: 'User registered successfully!' });
-            }
+      // Create and return JWT
+      const payload = {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: "user", // Include role in the payload
+        },
+      };
+      try {
+        const token = jwt.sign(
+          payload,
+          process.env.JWT_SECRET,
+          { expiresIn: '7d' }
         );
+        res.json({ token, msg: 'User registered successfully!' });
+      } catch (err) {
+        console.error('❌ Error during signup:', err);
+        res.status(500).json({ error: 'JWT signing failed' });
+      }
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+      console.error(err.message);
+      res.status(500).send('Server Error');
     }
-});
+  });
 
 module.exports = router;

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Card,
   Input,
@@ -6,9 +7,57 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthContext"; // Adjust the import path as necessary
+import AuthService from "../../services/api/auth";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
 
 export function SignUp() {
+  const { login } = useAuth(); // Destructure the login function from useAuth
+  const navigate = useNavigate(); // Get the navigate function from useNavigate
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSignUp = async (event) => {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+    // Basic validation
+    if (!name || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    try {
+      const response = await AuthService.signUpUser({ name, email, password });
+      if (response.error || response.warning) {
+        // console.error("Signup error:", response);
+        setError(response.error || response.warning || "Signup failed");
+      } else {
+        setSuccess("Registration successful! Please sign in.");
+        // setName(""); setEmail(""); setPassword(""); setConfirmPassword("");
+        // console.log("User registered successfully:", response);
+        login(response.token); // Call the login function from AuthContext to update global state
+        navigate("/dashboard/home"); // Redirect to the dashboard after successful registration
+        
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again later.");
+    }
+  };
+
   return (
     <section className="flex m-7">
             <div className="hidden w-2/5 h-full lg:block">
@@ -21,7 +70,7 @@ export function SignUp() {
         <div className="text-center">
           <Typography variant="h2" className="mb-4 font-bold">Join Us Today</Typography>
         </div>
-        <form className="max-w-screen-lg mx-auto mt-8 mb-2 w-80 lg:w-1/2">
+        <form className="max-w-screen-lg mx-auto mt-8 mb-2 w-80 lg:w-1/2" onSubmit={handleSignUp}>
           <div className="flex flex-col gap-6 mb-1">
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Your Name
@@ -33,6 +82,8 @@ export function SignUp() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              value={name}
+              onChange={e => setName(e.target.value)}
             />
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Your email
@@ -44,6 +95,8 @@ export function SignUp() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              value={email}
+              onChange={e => setEmail(e.target.value)}
             />
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Password
@@ -56,6 +109,8 @@ export function SignUp() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
             />
              <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Confirm Password
@@ -68,9 +123,21 @@ export function SignUp() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
             />
           </div>
-          
+          {/* Show error or success message */}
+          {error && (
+            <Typography variant="small" color="red" className="mb-4 text-center">
+              {error}
+            </Typography>
+          )}
+          {success && (
+            <Typography variant="small" color="green" className="mb-4 text-center">
+              {success}
+            </Typography>
+          )}
           <Checkbox
             label={
               <Typography
@@ -89,7 +156,7 @@ export function SignUp() {
             }
             containerProps={{ className: "-ml-2.5" }}
           />
-          <Button className="mt-6" fullWidth>
+          <Button className="mt-6" fullWidth type="submit">
             Register Now
           </Button>
 

@@ -9,16 +9,16 @@ export const AuthProvider = ({ children }) => {
 
   // On component mount, check for a stored token/user data
   useEffect(() => {
-    const storedUser = localStorage.getItem('user'); // Or get your token
-    if (storedUser) {
+    const storedToken = localStorage.getItem('token'); // Or get your token
+    if (storedToken) {
       try {
-        const parsedUser = JSON.parse(storedUser);
+        const parsedToken = JSON.parse(storedToken);
         // You might want to validate the token with your backend here
         // For simplicity, we'll just set the user
-        setUser(parsedUser);
+        setUser(parsedToken);
       } catch (e) {
-        console.error("Failed to parse user from localStorage", e);
-        localStorage.removeItem('user'); // Clear corrupted data
+        console.error("Failed to parse token from localStorage", e);
+        localStorage.removeItem('token'); // Clear corrupted data
       }
     }
     setLoading(false); // Finished checking
@@ -26,12 +26,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Store user data/token
+    localStorage.setItem('token', JSON.stringify(userData)); // Store user data/token
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user'); // Clear stored data
+    localStorage.removeItem('token'); // Clear stored data
   };
 
   // Simple check for authentication status

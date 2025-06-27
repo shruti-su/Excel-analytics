@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Attendence = require('../models/attendence');
+const auth = require('../middleware/authMiddleware'); // Add auth middleware import
 
-router.post('/att/set', async (req, res) => {
+router.post('/att/set', auth, async (req, res) => {
     // const student = new Student({ name: 'Kirito', rollNumber: '12345', class: '10th', age: 15, email: 'kirito@example.com' });
     // await student.save();
     // res.send('Student saved');
@@ -21,7 +22,7 @@ router.post('/att/set', async (req, res) => {
 });
 
 // 📋 [GET] List all students
-router.get('/att/get', async (req, res) => {
+router.get('/att/get', auth, async (req, res) => {
     // try {
     //     const students = await Student.find();
     //     res.json(students);

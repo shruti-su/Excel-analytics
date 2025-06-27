@@ -8,6 +8,7 @@ import {
 } from "@material-tailwind/react";
 import { Link, useNavigate } from "react-router-dom";
 import {useAuth } from "@/components/auth/AuthContext"; // Adjust the import path as necessary
+import AuthService from "@/services/api/auth"; // Import the AuthService for API calls
 
 
 export function SignIn() {
@@ -30,18 +31,12 @@ export function SignIn() {
 
     try {
     
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await AuthService.loginUser({ email, password });
 
       // Check simulated credentials
-      if (email === "test@example.com" && password === "password") {
-        const userData = {
-          id: "user-123",
-          email: email,
-          name: "John Doe",
-          token: "fake-jwt-token-123", // In a real app, this would be a real token from your backend
-        };
-        login(userData); // Call the login function from AuthContext to update global state
-        navigate("/dashboard"); // Redirect to the dashboard after successful login
+      if (response.msg === 'Logged in successfully!') {
+        login(response.token); // Call the login function from AuthContext to update global state
+        navigate("/dashboard/home"); // Redirect to the dashboard after successful login
       } else {
         // If simulated credentials don't match, set an error
         setError("Invalid email or password. Please try again.");
@@ -159,7 +154,7 @@ export function SignIn() {
           </div>
           <Typography variant="paragraph" className="mt-4 font-medium text-center text-blue-gray-500">
             Not registered?
-            <Link to="/sign-up" className="ml-1 text-blue-600 hover:text-blue-800">Create account</Link>
+            <Link to="/auth/sign-up" className="ml-1 text-blue-600 hover:text-blue-800">Create account</Link>
           </Typography>
         </form>
       </div>
