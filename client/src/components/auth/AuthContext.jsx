@@ -12,6 +12,19 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem('token'); // Or get your token
     if (storedToken) {
       try {
+        const base64 = storedToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const json = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        const currentTime = Date.now() / 1000; 
+        if (JSON.parse(json).exp < currentTime) {
+          console.error("Token has expired");
+          localStorage.removeItem('token');
+        }
+
         const parsedToken = JSON.parse(storedToken);
         // You might want to validate the token with your backend here
         // For simplicity, we'll just set the user

@@ -19,7 +19,7 @@ export function Dashboard() {
   const { sidenavType } = controller;
 
   // Debugging: Check the routes array structure and content
-  console.log("Dashboard: `routes` prop:", routes);
+  // console.log("Dashboard: `routes` prop:", routes);
 
   return (
     <div className="min-h-screen bg-blue-gray-50/50">
