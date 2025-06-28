@@ -24,6 +24,15 @@ const AuthService = {
             throw error; // Re-throw the error to be handled by the calling component
         }
     },
+    googleLogin: async (googleData) => {
+        try {
+            const response = await api.post(`${USER_BASE_PATH}google-login`, googleData);
+            return response.data; // Axios puts the actual data in .data
+        } catch (error) {
+            console.error('Error signing in with Google:', error);
+            throw error; // Re-throw the error to be handled by the calling component
+        }
+    },
     /**
      * Fetches all users.
      * @returns {Promise<Array>} A promise that resolves to an array of user objects.

@@ -129,5 +129,55 @@ router.post('/signup',
       res.status(500).send('Server Error');
     }
   });
+router.post("/google-login", async (req, res) => {
+  const { email, name } = req.body;
+
+  try {
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) { // If user exists, create JWT and return it
+      const payload = {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role, // Include role in the payload
+        },
+      };
+      const token = jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      return res.json({ token, msg: 'Logged in successfully!' });
+    }
+    // If user does not exist, create a new user
+    user = new User({
+      name,
+      email,
+      password: 'google-auth', // Placeholder password, not used for Google login
+      role: 'user', // Default role for new users
+    });
+    await user.save();
+    // Create JWT for the new user
+    const payload = {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role, // Include role in the payload
+      },
+    };
+    const token = jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    res.json({ token, msg: 'User registered and logged in successfully!' });
+  } catch (err) {
+    console.error('❌ Error during Google login:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
 
 module.exports = router;
