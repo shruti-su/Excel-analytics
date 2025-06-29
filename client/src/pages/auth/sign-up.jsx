@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthContext"; // Adjust the import path as necessary
 import AuthService from "../../services/api/auth";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { signInWithPopup, auth, provider } from "@/firebase";
 
 
 export function SignUp() {
@@ -23,7 +24,25 @@ export function SignUp() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const loginWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      // console.log("Logged in user:", user);
+      const response = await AuthService.googleLogin({
+        email: user.email,
+        name: user.displayName,
+      });
+        login(response.token);
+        navigate("/dashboard/home");
+  
+    } catch (error) {
+      console.error("Login error:", error);
+    }
+  };
+
   const handleSignUp = async (event) => {
+    
     event.preventDefault();
     setError("");
     setSuccess("");
@@ -161,7 +180,7 @@ export function SignUp() {
           </Button>
 
           <div className="mt-8 space-y-4">
-            <Button size="lg" color="white" className="flex items-center justify-center gap-2 shadow-md" fullWidth>
+            <Button size="lg" color="white" className="flex items-center justify-center gap-2 shadow-md" fullWidth onClick={loginWithGoogle}>
               <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_1156_824)">
                   <path d="M16.3442 8.18429C16.3442 7.64047 16.3001 7.09371 16.206 6.55872H8.66016V9.63937H12.9813C12.802 10.6329 12.2258 11.5119 11.3822 12.0704V14.0693H13.9602C15.4741 12.6759 16.3442 10.6182 16.3442 8.18429Z" fill="#4285F4" />
