@@ -32,7 +32,7 @@ export function Home() {
     <>
       <div className="items-center justify-center mt-12">
         <div className="text-3xl mx-auto text-center mb-8 font-bold">
-          Welcome to Excel Analytics
+          Welcome to Excel Analytics Project
         </div>
         <div className="flex flex-col md:flex-row justify-center gap-8 px-4">
           <Card className="flex-1 min-w-0 md:max-w-xs shadow-lg shadow-blue-200">
