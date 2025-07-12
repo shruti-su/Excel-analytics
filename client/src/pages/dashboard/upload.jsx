@@ -30,7 +30,7 @@ function Upload() {
           />
           <label htmlFor="file-upload">
             <Button variant="gradient" size="lg">
-              Upload File
+              Upload Excel File 
             </Button>
           </label>
           <Typography variant="h5" className="text-black text-center p-4">
