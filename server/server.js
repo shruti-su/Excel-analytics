@@ -12,15 +12,23 @@ const app = express();
 const PORT = 5000;
 
 // Use the correct env variable name (MONGO_URL from docker-compose)
-const mongoURI = process.env.MONGO_URL;
+const mongoURI = process.env.MONGO_URL; // This would typically be for a local or Render Private Service MongoDB
+// const mongoURI = process.env.MONGODB_ATLAS_URI; // Use this if you put your Atlas URI in .env as MONGODB_ATLAS_URI
 
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => console.log('✅ Connected to MongoDB'))
-    .catch(err => console.error('❌ MongoDB error:', err));
+// Mongoose client options for MongoDB Atlas Stable API version (from mongodbConnection.txt)
+const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 
+mongoose.connect(mongoURI, clientOptions) // Use clientOptions for MongoDB Atlas connections
+    .then(() => {
+        console.log('✅ Connected to MongoDB!');
+        // Optional: Ping the deployment to confirm connection (as in mongodbConnection.txt)
+        // This is typically for initial connection verification, not for every app start
+        mongoose.connection.db.admin().command({ ping: 1 })
+            .then(() => console.log("Pinged your deployment. You successfully connected to MongoDB!"))
+            .catch(err => console.error("Ping command failed:", err));
+    })
+    .catch(err => console.error('❌ MongoDB connection error:', err));
+// --- End MongoDB Connection Setup ---
 // add all the routes here 
 app.use(express.json());
 // <--- ADD CORS CONFIGURATION HERE ---
