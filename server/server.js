@@ -6,6 +6,7 @@ const studentRoutes = require('./routes/student');
 const EmployeeRoutes = require('./routes/employee')
 const cors = require('cors'); // <--- ADD THIS LINE: Import the cors package
 const auth = require('./routes/auth'); // <--- ADD THIS LINE: Import the auth routes
+const UploadRoutes = require('./routes/fileupload'); // <--- ADD THIS LINE: Import the upload routes
 dotenv.config();
 
 const app = express();
@@ -52,6 +53,7 @@ app.use('/auth', auth); // <--- ADD THIS LINE: Use the auth routes
 app.use('/api', userRoutes);
 app.use('/student', studentRoutes);
 app.use('/employee', EmployeeRoutes);
+app.use('/upload', UploadRoutes); // <--- ADD THIS LINE: Use the upload routes
 
 
 app.listen(PORT, () => {
