@@ -1,24 +1,42 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
+const multer = require('multer'); // <-- Add this import
 const Upload = require('../models/upload');
 const auth = require('../middleware/authMiddleware');
+const XLSX = require('xlsx');
 
 // Set up multer for file uploads
 const storage = multer.memoryStorage();
-// const upload = multer({
-//   storage: storage,
-//   fileFilter: (req, file, cb) => {
-//     const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'];
-//     if (allowedTypes.includes(file.mimetype)) {
-//       cb(null, true);
-//     } else {
-//       cb(new Error('Invalid file type. Only Excel and CSV files are allowed.'));
-//     }
-//   },
-//   limits: { fileSize: 10 * 1024 * 1024 } // 10 MB limit
-// });     
+const upload = multer({ storage: storage });
 
+router.post('/upload', auth, upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        // Parse file buffer to JSON
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        // Save to DB
+        const uploadDoc = new Upload({
+            user: req.user.id,
+            fileName: req.file.originalname,
+            fileType: req.file.originalname.split('.').pop().toLowerCase(),
+            fileSize: req.file.size,
+            data: jsonData
+        });
+        await uploadDoc.save();
+
+        res.json({ message: 'File uploaded and data saved', data: jsonData });
+    } catch (err) {
+        console.error('❌ Error uploading file:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 

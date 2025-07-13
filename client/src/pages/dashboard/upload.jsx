@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
-import { sweetAlert } from "../../components/SweetAlert/SweetAlert";  
+import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
+import fileuploadService from "/src/services/api/fileupload.js";
 
 function Upload() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -11,7 +12,7 @@ function Upload() {
     if (!file) {
       return;
     }
-    
+
     // Check file type by extension
     const allowedExtensions = [".xlsx", ".xls", ".csv"];
     const fileExtension = file.name
@@ -21,8 +22,8 @@ function Upload() {
     if (allowedExtensions.includes(fileExtension)) {
       setSelectedFile(file);
       showSuccess("File selected successfully!");
+      // handleUpload(file);
       // Here you can add the logic to handle the file upload
-      
     } else {
       setSelectedFile(null);
       showError("Invalid file type. Please upload an Excel or CSV file.");
@@ -48,6 +49,22 @@ function Upload() {
     setIsDragOver(false);
     const file = event.dataTransfer.files[0];
     handleFileChange(file);
+  };
+  const handleUpload = async (file) => {
+    if (!selectedFile && !file) {
+      showWarning("Please select a file first.");
+      return;
+    }
+    try {
+      const response = await fileuploadService.uploadFile(selectedFile);
+      if (response && response.message) {
+        showSuccess(response.message);
+      } else {
+        showError("Upload failed. Please try again.");
+      }
+    } catch (err) {
+      showError("Error uploading file.");
+    }
   };
 
   return (
@@ -86,7 +103,7 @@ function Upload() {
           >
             Upload
           </Button>
-          
+
           <Typography className="mt-4 text-lg font-semibold text-blue-700">
             Drag and drop your file here or
           </Typography>
@@ -95,6 +112,16 @@ function Upload() {
           </Typography>
         </CardBody>
       </Card>
+
+      {selectedFile && (
+        <Button
+          className="justify-center mx-auto px-8 py-3 text-lg font-bold bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-md rounded-full transition-all duration-300 mt-4"
+          color="green"
+          onClick={handleUpload}
+        >
+          Upload
+        </Button>
+      )}
     </div>
   );
 }
