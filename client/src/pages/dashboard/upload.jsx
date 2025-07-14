@@ -32,6 +32,9 @@ function Upload() {
 
   const handleFileInputChange = (event) => {
     handleFileChange(event.target.files[0]);
+    // By setting the value to null, we ensure the onChange event will
+    // fire again if the same file is selected.
+    event.target.value = null;
   };
 
   const handleDragOver = (event) => {
@@ -50,8 +53,8 @@ function Upload() {
     const file = event.dataTransfer.files[0];
     handleFileChange(file);
   };
-  const handleUpload = async (file) => {
-    if (!selectedFile && !file) {
+  const handleUpload = async () => {
+    if (!selectedFile) {
       showWarning("Please select a file first.");
       return;
     }
@@ -59,8 +62,10 @@ function Upload() {
       const response = await fileuploadService.uploadFile(selectedFile);
       if (response && response.message) {
         showSuccess(response.message);
+        setSelectedFile(null);
       } else {
         showError("Upload failed. Please try again.");
+        setSelectedFile(null);
       }
     } catch (err) {
       showError("Error uploading file.");
