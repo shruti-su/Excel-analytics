@@ -18,6 +18,8 @@ import { EllipsisVerticalIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
 import { useNavigate } from "react-router-dom";
 
+
+
 export function Home() {
   const navigate = useNavigate();
 
