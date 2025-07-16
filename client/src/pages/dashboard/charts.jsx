@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { MultiSelect } from "primereact/multiselect";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -48,6 +48,7 @@ export const Charts = () => {
   const [selectedChart, setSelectedChart] = useState(null);
   const [showChartWithData, setShowChartWithData] = useState(false);
   const [dynamicChartData, setDynamicChartData] = useState(null);
+  const chartRef = useRef(null); // Ref for dynamic chart
 
   // --- Data Validation and Early Exit ---
   useEffect(() => {
@@ -319,15 +320,15 @@ export const Charts = () => {
             backgroundColor:
               selectedChart === "Area Chart"
                 ? `rgba(${parseInt(
-                    colors[(i - 1) % colors.length].slice(1, 3),
-                    16
-                  )}, ${parseInt(
-                    colors[(i - 1) % colors.length].slice(3, 5),
-                    16
-                  )}, ${parseInt(
-                    colors[(i - 1) % colors.length].slice(5, 7),
-                    16
-                  )}, 0.5)`
+                  colors[(i - 1) % colors.length].slice(1, 3),
+                  16
+                )}, ${parseInt(
+                  colors[(i - 1) % colors.length].slice(3, 5),
+                  16
+                )}, ${parseInt(
+                  colors[(i - 1) % colors.length].slice(5, 7),
+                  16
+                )}, 0.5)`
                 : undefined,
             fill: selectedChart === "Area Chart",
             tension: 0.4, // Smooth lines
@@ -714,19 +715,52 @@ export const Charts = () => {
         <div className="flex flex-col md:flex-row justify-center items-start gap-6 p-4">
           <div className="w-full md:w-1/2 flex justify-center">
             {showChartWithData && dynamicChartData ? (
-              // Show dynamically generated chart
-              <ChartBlock
-                title={`${selectedChart} (Your Data)`}
-                color="from-blue-100 to-blue-300"
-                size={500} // Larger size for dynamic chart
-              >
-                {SelectedChartComponent && (
-                  <SelectedChartComponent
-                    data={dynamicChartData}
-                    options={dynamicChartData.options} // Pass options generated with data
-                  />
-                )}
-              </ChartBlock>
+              // Show dynamically generated chart with download button
+              <div className="flex flex-col items-center w-full">
+                <ChartBlock
+                  title={`${selectedChart} (Your Data)`}
+                  color="from-blue-100 to-blue-300"
+                  size={500}
+                >
+                  {SelectedChartComponent && (
+                    <SelectedChartComponent
+                      ref={chartRef}
+                      data={dynamicChartData}
+                      options={dynamicChartData.options}
+                    />
+                  )}
+                </ChartBlock>
+                <button
+                  className="mt-4 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform font-semibold"
+                  onClick={() => {
+                    if (chartRef.current) {
+                      const chart = chartRef.current;
+                      const originalWidth = chart.width;
+                      const originalHeight = chart.height;
+                      chart.resize(1000, 800); // Set to large dimensions for export
+                      let url;
+                      if (chart && chart.toBase64Image) {
+                        url = chart.toBase64Image("image/png", 1); // Full quality PNG
+                      } else if (chart && chart.canvas && chart.canvas.toDataURL) {
+                        url = chart.canvas.toDataURL("image/png", 1);
+                      }
+                      chart.resize(originalWidth, originalHeight); // Reset to original after
+                      if (url) {
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = `${selectedChart.replace(/\s/g, "_")}_chart.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      } else {
+                        alert("Unable to download chart. Try a different browser or update react-chartjs-2.");
+                      }
+                    }
+                  }}
+                >
+                  Download as PNG
+                </button>
+              </div>
             ) : (
               // Show static example of selected chart
               <ChartBlock
@@ -791,11 +825,9 @@ const ChartBlock = ({
   onClick,
 }) => (
   <div
-    className={`bg-gradient-to-br ${
-      typeof color === "string" ? color : "from-white to-gray-100"
-    } rounded-2xl shadow-lg p-4 flex flex-col items-center justify-center border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-200 ${
-      onClick ? "cursor-pointer" : ""
-    }
+    className={`bg-gradient-to-br ${typeof color === "string" ? color : "from-white to-gray-100"
+      } rounded-2xl shadow-lg p-4 flex flex-col items-center justify-center border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-200 ${onClick ? "cursor-pointer" : ""
+      }
     w-full aspect-square max-w-[${size}px] max-h-[${size}px]`} /* Apply responsive sizing here */
     // Removed fixed width/height from style, using Tailwind classes instead
     onClick={() => onClick && onClick(chartName)} // Call onClick if provided
