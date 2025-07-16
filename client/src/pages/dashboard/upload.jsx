@@ -187,7 +187,7 @@ function Upload() {
               className="px-6 py-2 font-bold rounded-full"
               onClick={() => {
                 showSuccess("Data analyzed successfully!");
-                navigate("/dashboard/charts");
+                navigate("/dashboard/charts", { state: { parsedData } });
               }}
             >
               Analyze

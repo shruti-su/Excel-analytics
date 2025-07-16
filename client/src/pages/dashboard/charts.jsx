@@ -1,5 +1,6 @@
 import React, { useState } from "react"; // Import useState
-import { useNavigate } from "react-router-dom";
+import { MultiSelect } from "primereact/multiselect";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Pie,
   Bar,
@@ -36,17 +37,60 @@ ChartJS.register(
 );
 
 export const Charts = () => {
-  // Use useState for selectedChart, initialized to null (no chart selected)
+  // Get parsedData from navigation state (from upload page)
+  const location = useLocation();
+  const parsedData = location.state?.parsedData || [];
+  console.log("Parsed Data:", parsedData);
+
+  if (!parsedData.length) {
+    return (
+      <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl shadow-2xl border-indigo-200 min-h-screen">
+        <h2 className="text-2xl font-bold text-center text-indigo-700">
+          No data available. Please upload a file first.
+        </h2>
+      </div>
+    );
+  }
+  else if (parsedData.length === 1) {
+    return (
+      <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl shadow-2xl border-indigo-200 min-h-screen">
+        <h2 className="text-2xl font-bold text-center text-indigo-700">
+          No data available for charts. Please upload a file with more data.
+        </h2>
+      </div>
+    );
+  } 
+  else if (parsedData.length > 1000) {
+    return (
+      <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl shadow-2xl border-indigo-200 min-h-screen">
+        <h2 className="text-2xl font-bold text-center text-indigo-700">
+          Too much data to display charts. Please upload a smaller file.
+        </h2>
+      </div>
+    );
+  } 
+
+ 
+  // Extract headers from parsedData for MultiSelect options
+  const headerOptions = Array.isArray(parsedData[0])
+    ? parsedData[0].map((header) => ({ name: header, code: header }))
+    : [];
+
+  const [selectedHeaders, setSelectedHeaders] = useState([]);
   const [selectedChart, setSelectedChart] = useState(null);
+  const [showChartWithData, setShowChartWithData] = useState(false);
 
   // Function to handle chart click
   const handleChartClick = (chartName) => {
     setSelectedChart(chartName);
+    setShowChartWithData(false); // Reset chart-with-data view on new chart select
   };
 
   // Function to show all charts
   const handleShowAllCharts = () => {
     setSelectedChart(null);
+    setShowChartWithData(false);
+    setSelectedHeaders([]);
   };
 
   // Pie Data
@@ -261,17 +305,68 @@ export const Charts = () => {
           </ChartBlock>
         </div>
       ) : (
-        // Display only the selected chart, centered and larger
-        <div className="flex justify-center items-center h-[calc(100vh-180px)]">
-          {" "}
-          {/* Adjust height as needed */}
-          <ChartBlock
-            title={selectedChart}
-            color="from-white to-gray-100" // Default color for selected chart
-            size={600} // Make the selected chart larger
-          >
-            {chartComponents[selectedChart]}
-          </ChartBlock>
+        // Display selected chart on the left, form on the right, or chart with parsed data after submit
+        <div className="flex flex-col md:flex-row justify-center items-center h-[calc(100vh-180px)] gap-8">
+          <div className="w-full md:w-1/2 flex justify-center">
+            <ChartBlock
+              title={selectedChart}
+              color="from-white to-gray-100"
+              size={300}
+            >
+              {chartComponents[selectedChart]}
+            </ChartBlock>
+          </div>
+          <div className="w-full md:w-1/2 flex justify-center">
+            {!showChartWithData ? (
+              <div className="bg-white rounded-2xl shadow-lg p-8 border border-indigo-100 w-full max-w-md flex flex-col gap-4">
+                <h3 className="text-xl font-bold mb-2 text-indigo-700">Chart Input Form</h3>
+                <form onSubmit={e => { e.preventDefault(); setShowChartWithData(true); }} className="flex flex-col gap-4">
+                  <label htmlFor="inputBox" className="font-semibold text-gray-700">Select columns to display:</label>
+                  <MultiSelect
+                    value={selectedHeaders}
+                    onChange={(e) => setSelectedHeaders(e.value)}
+                    options={headerOptions}
+                    optionLabel="name"
+                    display="chip"
+                    placeholder="Select Columns"
+                    maxSelectedLabels={5}
+                    className="w-full md:w-20rem"
+                    disabled={headerOptions.length === 0}
+                  />
+                  <button type="submit" className="bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform">Submit</button>
+                </form>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-lg p-8 border border-indigo-100 w-full max-w-2xl flex flex-col gap-4 overflow-auto">
+                <h3 className="text-xl font-bold mb-2 text-indigo-700">{selectedChart} - Data Preview</h3>
+                {/* Show a table of the selected columns from parsedData */}
+                {selectedHeaders.length > 0 ? (
+                  <table className="min-w-full border border-gray-300 text-sm">
+                    <thead>
+                      <tr>
+                        {selectedHeaders.map((col, idx) => (
+                          <th key={idx} className="border px-2 py-1 bg-blue-100 text-blue-800 font-bold">{col.name}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parsedData.slice(1).map((row, rowIdx) => (
+                        <tr key={rowIdx}>
+                          {selectedHeaders.map((col, colIdx) => {
+                            const colIndex = parsedData[0].indexOf(col.name);
+                            return <td key={colIdx} className="border px-2 py-1 text-gray-700">{row[colIndex]}</td>;
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-gray-500 italic">No columns selected.</div>
+                )}
+                <button onClick={() => setShowChartWithData(false)} className="mt-4 bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform">Back to Form</button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -288,9 +383,8 @@ const ChartBlock = ({
   onClick,
 }) => (
   <div
-    className={`bg-gradient-to-br ${
-      typeof color === "string" ? color : "from-white to-gray-100"
-    } rounded-2xl shadow-lg p-4 flex flex-col items-center justify-center border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-200 cursor-pointer`}
+    className={`bg-gradient-to-br ${typeof color === "string" ? color : "from-white to-gray-100"
+      } rounded-2xl shadow-lg p-4 flex flex-col items-center justify-center border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-200 cursor-pointer`}
     onClick={() => onClick && onClick(chartName)} // Call onClick if provided
   >
     <h3 className="text-xl font-extrabold mb-3 text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
