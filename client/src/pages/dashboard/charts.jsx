@@ -1,13 +1,13 @@
-import React, { useState } from "react"; // Import useState
+import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
 import { MultiSelect } from "primereact/multiselect";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Pie,
   Bar,
   Line,
-  Doughnut, // Added Doughnut as it's in the original code's imports
-  Radar, // Added Radar
-  PolarArea, // Added PolarArea
+  Doughnut,
+  Radar,
+  PolarArea,
   Scatter,
 } from "react-chartjs-2";
 import {
@@ -20,7 +20,8 @@ import {
   LineElement,
   Tooltip,
   Legend,
-  RadialLinearScale, // Needed for Radar and PolarArea charts
+  RadialLinearScale,
+  Title, // Added Title for chart options
 } from "chart.js";
 
 // Register all necessary Chart.js components
@@ -33,14 +34,30 @@ ChartJS.register(
   LineElement,
   Tooltip,
   Legend,
-  RadialLinearScale // Register for Radar and PolarArea
+  RadialLinearScale,
+  Title // Register Title
 );
 
 export const Charts = () => {
-  // Get parsedData from navigation state (from upload page)
+  const navigate = useNavigate();
   const location = useLocation();
   const parsedData = location.state?.parsedData || [];
-  console.log("Parsed Data:", parsedData);
+
+  // State for chart selection and data processing
+  const [selectedHeaders, setSelectedHeaders] = useState([]);
+  const [selectedChart, setSelectedChart] = useState(null);
+  const [showChartWithData, setShowChartWithData] = useState(false);
+  const [dynamicChartData, setDynamicChartData] = useState(null);
+
+  // --- Data Validation and Early Exit ---
+  useEffect(() => {
+    console.log("Parsed Data:", parsedData);
+    // Reset states if parsedData changes (e.g., navigating back from upload)
+    setSelectedHeaders([]);
+    setSelectedChart(null);
+    setShowChartWithData(false);
+    setDynamicChartData(null);
+  }, [parsedData]); // Re-run when parsedData changes
 
   if (!parsedData.length) {
     return (
@@ -48,52 +65,413 @@ export const Charts = () => {
         <h2 className="text-2xl font-bold text-center text-indigo-700">
           No data available. Please upload a file first.
         </h2>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => navigate("/dashboard/upload")}
+            className="bg-gradient-to-r from-red-400 to-pink-500 text-white px-6 py-2 rounded-full shadow-lg hover:scale-105 transition-transform duration-200 font-semibold"
+          >
+            ← Go to Upload
+          </button>
+        </div>
       </div>
     );
-  }
-  else if (parsedData.length === 1) {
+  } else if (parsedData.length === 1) {
+    // Only headers, no data rows
     return (
       <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl shadow-2xl border-indigo-200 min-h-screen">
         <h2 className="text-2xl font-bold text-center text-indigo-700">
-          No data available for charts. Please upload a file with more data.
+          No data rows found. Please upload a file with more data.
         </h2>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => navigate("/dashboard/upload")}
+            className="bg-gradient-to-r from-red-400 to-pink-500 text-white px-6 py-2 rounded-full shadow-lg hover:scale-105 transition-transform duration-200 font-semibold"
+          >
+            ← Go to Upload
+          </button>
+        </div>
       </div>
     );
-  } 
-  else if (parsedData.length > 1000) {
+  } else if (parsedData.length > 1000) {
     return (
       <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl shadow-2xl border-indigo-200 min-h-screen">
         <h2 className="text-2xl font-bold text-center text-indigo-700">
           Too much data to display charts. Please upload a smaller file.
         </h2>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => navigate("/dashboard/upload")}
+            className="bg-gradient-to-r from-red-400 to-pink-500 text-white px-6 py-2 rounded-full shadow-lg hover:scale-105 transition-transform duration-200 font-semibold"
+          >
+            ← Go to Upload
+          </button>
+        </div>
       </div>
     );
-  } 
+  }
 
- 
   // Extract headers from parsedData for MultiSelect options
-  const headerOptions = Array.isArray(parsedData[0])
-    ? parsedData[0].map((header) => ({ name: header, code: header }))
-    : [];
+  const headers = Array.isArray(parsedData[0]) ? parsedData[0] : [];
+  const dataRows = parsedData.slice(1); // All rows except the first (headers)
 
-  const [selectedHeaders, setSelectedHeaders] = useState([]);
-  const [selectedChart, setSelectedChart] = useState(null);
-  const [showChartWithData, setShowChartWithData] = useState(false);
+  const headerOptions = headers.map((header) => ({
+    name: header,
+    code: header,
+  }));
 
-  // Function to handle chart click
-  const handleChartClick = (chartName) => {
-    setSelectedChart(chartName);
-    setShowChartWithData(false); // Reset chart-with-data view on new chart select
+  // --- Chart Data Generation Logic ---
+  const generateChartData = useCallback(() => {
+    // Added useCallback
+    if (!selectedHeaders.length || !selectedChart) {
+      setDynamicChartData(null);
+      return;
+    }
+
+    const datasets = [];
+    const labels = [];
+    let chartOptions = {};
+
+    // Get the indices of the selected headers
+    const selectedHeaderIndices = selectedHeaders.map((header) =>
+      headers.indexOf(header.name)
+    );
+
+    // Filter out invalid indices (headers not found)
+    const validSelectedHeaderIndices = selectedHeaderIndices.filter(
+      (idx) => idx !== -1
+    );
+
+    if (validSelectedHeaderIndices.length === 0) {
+      setDynamicChartData(null);
+      return;
+    }
+
+    // Assign colors for datasets
+    const colors = [
+      "#8884d8",
+      "#82ca9d",
+      "#ffc658",
+      "#ff7300",
+      "#a8a29e",
+      "#60a5fa",
+      "#f472b6",
+    ];
+
+    // --- Logic for different chart types ---
+    if (
+      selectedChart === "Pie Chart" ||
+      selectedChart === "Doughnut Chart" ||
+      selectedChart === "Polar Area Chart"
+    ) {
+      if (validSelectedHeaderIndices.length === 1) {
+        // For pie/doughnut/polar, one column for labels, one for data (or aggregate)
+        // Simplification: Assume the selected column contains categorical data to count
+        const counts = {};
+        dataRows.forEach((row) => {
+          const value = row[validSelectedHeaderIndices[0]];
+          if (value !== undefined && value !== null) {
+            counts[value] = (counts[value] || 0) + 1;
+          }
+        });
+
+        labels.push(...Object.keys(counts));
+        datasets.push({
+          data: Object.values(counts),
+          backgroundColor: labels.map((_, i) => colors[i % colors.length]),
+        });
+        chartOptions = {
+          responsive: true,
+          plugins: {
+            legend: { position: "top" },
+            title: {
+              display: true,
+              text: `${selectedChart} of ${selectedHeaders[0].name}`,
+            },
+          },
+        };
+      } else if (validSelectedHeaderIndices.length >= 2) {
+        // Assume first selected is labels, second is data
+        const labelColIndex = validSelectedHeaderIndices[0];
+        const dataColIndex = validSelectedHeaderIndices[1];
+
+        dataRows.forEach((row) => {
+          const labelValue = row[labelColIndex];
+          const dataValue = parseFloat(row[dataColIndex]);
+          if (labelValue !== undefined && !isNaN(dataValue)) {
+            labels.push(labelValue);
+            datasets.push(dataValue); // For pie, data is directly in dataset
+          }
+        });
+
+        datasets.push({
+          data: datasets, // This is a bit of a hack for pie/doughnut/polar
+          backgroundColor: labels.map((_, i) => colors[i % colors.length]),
+        });
+        chartOptions = {
+          responsive: true,
+          plugins: {
+            legend: { position: "top" },
+            title: {
+              display: true,
+              text: `${selectedChart} of ${selectedHeaders[1].name} by ${selectedHeaders[0].name}`,
+            },
+          },
+        };
+      }
+    } else if (
+      selectedChart === "Bar Chart" ||
+      selectedChart === "Column Chart" ||
+      selectedChart === "Histogram"
+    ) {
+      if (validSelectedHeaderIndices.length >= 1) {
+        const labelColIndex = validSelectedHeaderIndices[0];
+        labels.push(...dataRows.map((row) => row[labelColIndex]));
+
+        if (validSelectedHeaderIndices.length === 1) {
+          // If only one column selected, assume it's data, labels are just indices
+          // Or, if it's a histogram, aggregate counts.
+          // For simplicity, let's just count occurrences for histogram-like behavior
+          const counts = {};
+          dataRows.forEach((row) => {
+            const value = row[labelColIndex];
+            if (value !== undefined && value !== null) {
+              counts[value] = (counts[value] || 0) + 1;
+            }
+          });
+          labels.splice(0, labels.length, ...Object.keys(counts)); // Replace labels
+          datasets.push({
+            label: selectedHeaders[0].name,
+            data: Object.values(counts),
+            backgroundColor: colors[0],
+            borderColor: colors[0],
+            borderWidth: 1,
+            barPercentage: selectedChart === "Histogram" ? 1.0 : 0.9, // Full width for histogram
+            categoryPercentage: selectedChart === "Histogram" ? 1.0 : 0.9,
+          });
+        } else {
+          // Multiple columns: first is labels, others are datasets
+          for (let i = 1; i < validSelectedHeaderIndices.length; i++) {
+            const dataColIndex = validSelectedHeaderIndices[i];
+            datasets.push({
+              label: selectedHeaders[i].name,
+              data: dataRows
+                .map((row) => parseFloat(row[dataColIndex]))
+                .filter((val) => !isNaN(val)),
+              backgroundColor: colors[(i - 1) % colors.length],
+              borderColor: colors[(i - 1) % colors.length],
+              borderWidth: 1,
+            });
+          }
+        }
+        chartOptions = {
+          responsive: true,
+          plugins: {
+            legend: { position: "top" },
+            title: {
+              display: true,
+              text: `${selectedChart} of ${selectedHeaders
+                .map((h) => h.name)
+                .join(", ")}`,
+            },
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: selectedHeaders[0].name,
+              },
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Value / Frequency",
+              },
+            },
+          },
+        };
+        if (selectedChart === "Column Chart") {
+          chartOptions.indexAxis = "y"; // Horizontal bar chart
+          // Swap x and y axis titles if needed for clarity
+          const temp = chartOptions.scales.x.title.text;
+          chartOptions.scales.x.title.text = chartOptions.scales.y.title.text;
+          chartOptions.scales.y.title.text = temp;
+        }
+      }
+    } else if (
+      selectedChart === "Line Chart" ||
+      selectedChart === "Area Chart" ||
+      selectedChart === "Radar Chart"
+    ) {
+      if (validSelectedHeaderIndices.length >= 2) {
+        const labelColIndex = validSelectedHeaderIndices[0];
+        labels.push(...dataRows.map((row) => row[labelColIndex]));
+
+        for (let i = 1; i < validSelectedHeaderIndices.length; i++) {
+          const dataColIndex = validSelectedHeaderIndices[i];
+          datasets.push({
+            label: selectedHeaders[i].name,
+            data: dataRows
+              .map((row) => parseFloat(row[dataColIndex]))
+              .filter((val) => !isNaN(val)),
+            borderColor: colors[(i - 1) % colors.length],
+            backgroundColor:
+              selectedChart === "Area Chart"
+                ? `rgba(${parseInt(
+                    colors[(i - 1) % colors.length].slice(1, 3),
+                    16
+                  )}, ${parseInt(
+                    colors[(i - 1) % colors.length].slice(3, 5),
+                    16
+                  )}, ${parseInt(
+                    colors[(i - 1) % colors.length].slice(5, 7),
+                    16
+                  )}, 0.5)`
+                : undefined,
+            fill: selectedChart === "Area Chart",
+            tension: 0.4, // Smooth lines
+          });
+        }
+        chartOptions = {
+          responsive: true,
+          plugins: {
+            legend: { position: "top" },
+            title: {
+              display: true,
+              text: `${selectedChart} of ${selectedHeaders
+                .map((h) => h.name)
+                .join(", ")}`,
+            },
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: selectedHeaders[0].name,
+              },
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Value",
+              },
+            },
+          },
+        };
+      }
+    } else if (selectedChart === "Scatter Plot") {
+      if (validSelectedHeaderIndices.length >= 2) {
+        const xColIndex = validSelectedHeaderIndices[0];
+        const yColIndex = validSelectedHeaderIndices[1];
+
+        datasets.push({
+          label: `${selectedHeaders[1].name} vs ${selectedHeaders[0].name}`,
+          data: dataRows
+            .map((row) => ({
+              x: parseFloat(row[xColIndex]),
+              y: parseFloat(row[yColIndex]),
+            }))
+            .filter((point) => !isNaN(point.x) && !isNaN(point.y)),
+          backgroundColor: colors[0],
+        });
+        chartOptions = {
+          responsive: true,
+          plugins: {
+            legend: { position: "top" },
+            title: {
+              display: true,
+              text: `Scatter Plot of ${selectedHeaders[1].name} vs ${selectedHeaders[0].name}`,
+            },
+          },
+          scales: {
+            x: {
+              type: "linear",
+              position: "bottom",
+              title: {
+                display: true,
+                text: selectedHeaders[0].name,
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: selectedHeaders[1].name,
+              },
+            },
+          },
+        };
+      }
+    } else if (selectedChart === "Polar Area Chart") {
+      // Polar Area needs labels and single dataset
+      if (validSelectedHeaderIndices.length >= 2) {
+        const labelColIndex = validSelectedHeaderIndices[0];
+        const dataColIndex = validSelectedHeaderIndices[1];
+
+        dataRows.forEach((row) => {
+          const labelValue = row[labelColIndex];
+          const dataValue = parseFloat(row[dataColIndex]);
+          if (labelValue !== undefined && !isNaN(dataValue)) {
+            labels.push(labelValue);
+            datasets.push(dataValue);
+          }
+        });
+
+        datasets.push({
+          data: datasets, // Data values for the segments
+          backgroundColor: labels.map((_, i) => colors[i % colors.length]),
+        });
+        chartOptions = {
+          responsive: true,
+          plugins: {
+            legend: { position: "top" },
+            title: {
+              display: true,
+              text: `${selectedChart} of ${selectedHeaders[1].name} by ${selectedHeaders[0].name}`,
+            },
+          },
+          scales: {
+            r: {
+              beginAtZero: true,
+            },
+          },
+        };
+      }
+    }
+
+    setDynamicChartData({ labels, datasets, options: chartOptions });
+  }, [selectedHeaders, selectedChart, dataRows, headers]); // Added dependencies
+
+  // --- Form Submission Handler ---
+  const handleSubmitChartSelection = (e) => {
+    e.preventDefault();
+    if (selectedHeaders.length > 0 && selectedChart) {
+      generateChartData(); // Call the memoized function
+      setShowChartWithData(true);
+    } else {
+      alert("Please select at least one column and a chart type.");
+    }
   };
 
-  // Function to show all charts
-  const handleShowAllCharts = () => {
-    setSelectedChart(null);
-    setShowChartWithData(false);
-    setSelectedHeaders([]);
+  // Define a mapping of chart names to their components
+  const chartTypeComponents = {
+    "Pie Chart": Pie,
+    "Bar Chart": Bar,
+    "Line Chart": Line,
+    "Column Chart": Bar, // Column chart is a horizontal bar chart
+    "Area Chart": Line, // Area chart is a line chart with fill
+    "Scatter Plot": Scatter,
+    Histogram: Bar,
+    "Doughnut Chart": Doughnut,
+    "Radar Chart": Radar,
+    "Polar Area Chart": PolarArea,
   };
 
-  // Pie Data
+  // Get the component for the selected chart type
+  const SelectedChartComponent = chartTypeComponents[selectedChart];
+
+  // Define static example chart data (moved here for clarity)
   const pieData = {
     labels: ["A", "B", "C"],
     datasets: [
@@ -104,7 +482,6 @@ export const Charts = () => {
     ],
   };
 
-  // Bar Chart (Grouped)
   const barData = {
     labels: ["Jan", "Feb", "Mar"],
     datasets: [
@@ -118,7 +495,6 @@ export const Charts = () => {
     ],
   };
 
-  // Line Chart
   const lineData = {
     labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
     datasets: [
@@ -137,7 +513,6 @@ export const Charts = () => {
     ],
   };
 
-  // Column Chart (Horizontal Bar)
   const columnData = {
     labels: ["Product A", "Product B", "Product C", "Product D"],
     datasets: [
@@ -149,7 +524,6 @@ export const Charts = () => {
     ],
   };
 
-  // Area Chart (Using Line with fill)
   const areaData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
     datasets: [
@@ -163,7 +537,6 @@ export const Charts = () => {
     ],
   };
 
-  // Scatter Plot
   const scatterData = {
     datasets: [
       {
@@ -182,7 +555,6 @@ export const Charts = () => {
     ],
   };
 
-  // Histogram (treated like Bar Chart)
   const histogramData = {
     labels: ["0-10", "10-20", "20-30", "30-40", "40-50", "50-60"],
     datasets: [
@@ -198,9 +570,7 @@ export const Charts = () => {
     ],
   };
 
-  const navigate = useNavigate();
-
-  // Define a mapping of chart names to their components and data
+  // Define a mapping of chart names to their components AND data for static examples
   const chartComponents = {
     "Pie Chart": <Pie data={pieData} />,
     "Bar Chart": <Bar data={barData} />,
@@ -209,11 +579,23 @@ export const Charts = () => {
     "Area Chart": <Line data={areaData} />,
     "Scatter Plot": <Scatter data={scatterData} />,
     Histogram: <Bar data={histogramData} />,
-    // Add other chart types if you plan to use them
     "Doughnut Chart": <Doughnut data={pieData} />, // Using pieData as example
     "Radar Chart": <Radar data={pieData} />, // Using pieData as example
     "Polar Area Chart": <PolarArea data={pieData} />, // Using pieData as example
   };
+
+  // Function to handle chart click
+  const handleChartClick = useCallback((chartName) => {
+    setSelectedChart(chartName);
+    setShowChartWithData(false); // Reset chart-with-data view on new chart select
+  }, []); // Empty dependency array as it only uses state setters
+
+  // Function to show all charts
+  const handleShowAllCharts = useCallback(() => {
+    setSelectedChart(null);
+    setShowChartWithData(false);
+    setSelectedHeaders([]);
+  }, []); // Empty dependency array as it only uses state setters
 
   return (
     <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl shadow-2xl border-indigo-200 min-h-screen">
@@ -225,7 +607,7 @@ export const Charts = () => {
           Analytics Dashboard
         </h2>
         <div className="flex gap-4">
-          {selectedChart && (
+          {(selectedChart || showChartWithData) && ( // Show "Show All Charts" if any chart is selected or being displayed
             <button
               onClick={handleShowAllCharts}
               className="bg-gradient-to-r from-blue-400 to-cyan-500 text-white px-6 py-2 rounded-full shadow-lg hover:scale-105 transition-transform duration-200 font-semibold"
@@ -237,16 +619,15 @@ export const Charts = () => {
             onClick={() => navigate("/dashboard/upload")}
             className="bg-gradient-to-r from-red-400 to-pink-500 text-white px-6 py-2 rounded-full shadow-lg hover:scale-105 transition-transform duration-200 font-semibold"
           >
-            ← Back
+            ← Back to Upload
           </button>
         </div>
       </div>
 
-      {/* Conditionally render all charts or the selected chart */}
+      {/* Conditionally render all charts or the selected chart and form */}
       {!selectedChart ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {" "}
-          {/* Increased gap for better spacing */}
+        // --- Display All Example Charts ---
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
           <ChartBlock
             title="Pie Chart"
             color="from-pink-200 to-pink-400"
@@ -303,69 +684,96 @@ export const Charts = () => {
           >
             <Bar data={histogramData} />
           </ChartBlock>
+          <ChartBlock
+            title="Doughnut Chart"
+            color="from-red-200 to-red-400"
+            chartName="Doughnut Chart"
+            onClick={handleChartClick}
+          >
+            <Doughnut data={pieData} />
+          </ChartBlock>
+          <ChartBlock
+            title="Radar Chart"
+            color="from-orange-200 to-orange-400"
+            chartName="Radar Chart"
+            onClick={handleChartClick}
+          >
+            <Radar data={pieData} />
+          </ChartBlock>
+          <ChartBlock
+            title="Polar Area Chart"
+            color="from-teal-200 to-teal-400"
+            chartName="Polar Area Chart"
+            onClick={handleChartClick}
+          >
+            <PolarArea data={pieData} />
+          </ChartBlock>
         </div>
       ) : (
-        // Display selected chart on the left, form on the right, or chart with parsed data after submit
-        <div className="flex flex-col md:flex-row justify-center items-center h-[calc(100vh-180px)] gap-8">
+        // --- Display Selected Chart and Input Form ---
+        <div className="flex flex-col md:flex-row justify-center items-start gap-6 p-4">
           <div className="w-full md:w-1/2 flex justify-center">
-            <ChartBlock
-              title={selectedChart}
-              color="from-white to-gray-100"
-              size={300}
-            >
-              {chartComponents[selectedChart]}
-            </ChartBlock>
+            {showChartWithData && dynamicChartData ? (
+              // Show dynamically generated chart
+              <ChartBlock
+                title={`${selectedChart} (Your Data)`}
+                color="from-blue-100 to-blue-300"
+                size={500} // Larger size for dynamic chart
+              >
+                {SelectedChartComponent && (
+                  <SelectedChartComponent
+                    data={dynamicChartData}
+                    options={dynamicChartData.options} // Pass options generated with data
+                  />
+                )}
+              </ChartBlock>
+            ) : (
+              // Show static example of selected chart
+              <ChartBlock
+                title={selectedChart}
+                color="from-white to-gray-100"
+                size={400} // Default size for static example
+              >
+                {/* FIX: Directly render the pre-defined example chart from chartComponents */}
+                {chartComponents[selectedChart]}
+              </ChartBlock>
+            )}
           </div>
           <div className="w-full md:w-1/2 flex justify-center">
-            {!showChartWithData ? (
-              <div className="bg-white rounded-2xl shadow-lg p-8 border border-indigo-100 w-full max-w-md flex flex-col gap-4">
-                <h3 className="text-xl font-bold mb-2 text-indigo-700">Chart Input Form</h3>
-                <form onSubmit={e => { e.preventDefault(); setShowChartWithData(true); }} className="flex flex-col gap-4">
-                  <label htmlFor="inputBox" className="font-semibold text-gray-700">Select columns to display:</label>
-                  <MultiSelect
-                    value={selectedHeaders}
-                    onChange={(e) => setSelectedHeaders(e.value)}
-                    options={headerOptions}
-                    optionLabel="name"
-                    display="chip"
-                    placeholder="Select Columns"
-                    maxSelectedLabels={5}
-                    className="w-full md:w-20rem"
-                    disabled={headerOptions.length === 0}
-                  />
-                  <button type="submit" className="bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform">Submit</button>
-                </form>
-              </div>
-            ) : (
-              <div className="bg-white rounded-2xl shadow-lg p-8 border border-indigo-100 w-full max-w-2xl flex flex-col gap-4 overflow-auto">
-                <h3 className="text-xl font-bold mb-2 text-indigo-700">{selectedChart} - Data Preview</h3>
-                {/* Show a table of the selected columns from parsedData */}
-                {selectedHeaders.length > 0 ? (
-                  <table className="min-w-full border border-gray-300 text-sm">
-                    <thead>
-                      <tr>
-                        {selectedHeaders.map((col, idx) => (
-                          <th key={idx} className="border px-2 py-1 bg-blue-100 text-blue-800 font-bold">{col.name}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {parsedData.slice(1).map((row, rowIdx) => (
-                        <tr key={rowIdx}>
-                          {selectedHeaders.map((col, colIdx) => {
-                            const colIndex = parsedData[0].indexOf(col.name);
-                            return <td key={colIdx} className="border px-2 py-1 text-gray-700">{row[colIndex]}</td>;
-                          })}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="text-gray-500 italic">No columns selected.</div>
-                )}
-                <button onClick={() => setShowChartWithData(false)} className="mt-4 bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform">Back to Form</button>
-              </div>
-            )}
+            <div className="bg-white rounded-2xl shadow-lg p-8 border border-indigo-100 w-full max-w-md flex flex-col gap-4">
+              <h3 className="text-xl font-bold mb-2 text-indigo-700 text-center">
+                Configure Your Chart
+              </h3>
+              <form
+                onSubmit={handleSubmitChartSelection}
+                className="flex flex-col gap-4"
+              >
+                <label
+                  htmlFor="multiSelectHeaders"
+                  className="font-semibold text-gray-700"
+                >
+                  Select columns to display:
+                </label>
+                <MultiSelect
+                  id="multiSelectHeaders"
+                  value={selectedHeaders}
+                  onChange={(e) => setSelectedHeaders(e.value)}
+                  options={headerOptions}
+                  optionLabel="name"
+                  display="chip"
+                  placeholder="Select Columns"
+                  maxSelectedLabels={5}
+                  className="w-full" // Use w-full for responsiveness
+                  disabled={headerOptions.length === 0}
+                />
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform font-semibold"
+                >
+                  Generate Chart
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -378,13 +786,18 @@ const ChartBlock = ({
   title,
   children,
   color,
-  size = 320,
+  size, // size is now a max-width/height hint, not fixed dimensions
   chartName,
   onClick,
 }) => (
   <div
-    className={`bg-gradient-to-br ${typeof color === "string" ? color : "from-white to-gray-100"
-      } rounded-2xl shadow-lg p-4 flex flex-col items-center justify-center border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-200 cursor-pointer`}
+    className={`bg-gradient-to-br ${
+      typeof color === "string" ? color : "from-white to-gray-100"
+    } rounded-2xl shadow-lg p-4 flex flex-col items-center justify-center border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-200 ${
+      onClick ? "cursor-pointer" : ""
+    }
+    w-full aspect-square max-w-[${size}px] max-h-[${size}px]`} /* Apply responsive sizing here */
+    // Removed fixed width/height from style, using Tailwind classes instead
     onClick={() => onClick && onClick(chartName)} // Call onClick if provided
   >
     <h3 className="text-xl font-extrabold mb-3 text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
@@ -392,14 +805,16 @@ const ChartBlock = ({
     </h3>
     <div
       style={{
-        width: size,
-        height: size,
+        width: "100%", // Inner div takes full width/height of parent ChartBlock
+        height: "100%",
         margin: "auto",
         background: "rgba(255,255,255,0.7)",
         borderRadius: "1rem",
         boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        display: "flex", // Ensure chart centers within this div
+        alignItems: "center",
+        justifyContent: "center",
       }}
-      className="flex items-center justify-center"
     >
       {children}
     </div>

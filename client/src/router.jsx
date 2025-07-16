@@ -25,29 +25,30 @@ export const routes = [
         name: "dashboard",
         path: "/home",
         element: <Home />,
+        sidebar: true,
       },
       {
         icon: <HomeIcon {...icon} />,
         name: "Upload",
         path: "/upload",
         element: <Upload />,
+        sidebar: false,
       },
       {
         icon: <TableCellsIcon {...icon} />,
         name: "Charts",
         path: "/charts",
-        element: <Charts/>
-
+        element: <Charts />,
+        sidebar: false,
       },
-      
+
       {
         icon: <UserCircleIcon {...icon} />,
         name: "Attendence",
         path: "/Attendence",
         element: <Attendence />,
+        sidebar: true,
       },
-     
-      
     ],
   },
   {
@@ -68,8 +69,6 @@ export const routes = [
       },
     ],
   },
-
-  
-  ];
+];
 
 export default routes;
