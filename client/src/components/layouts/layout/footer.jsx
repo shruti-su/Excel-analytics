@@ -6,21 +6,8 @@ export function Footer({ brandName, brandLink, routes }) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="py-2">
-      <div className="flex flex-wrap items-center justify-center w-full gap-6 px-2 md:justify-between">
-        <Typography variant="small" className="font-normal text-inherit">
-          &copy; {year}, made with{" "}
-          <HeartIcon className="-mt-0.5 inline-block h-3.5 w-3.5 text-red-600" /> by{" "}
-          <a
-            href={brandLink}
-            target="_blank"
-            className="font-bold transition-colors hover:text-blue-500"
-          >
-            {brandName}
-          </a>{" "}
-          for a better web.
-        </Typography>
-        {/* <ul className="flex items-center gap-4">
+    <footer className="py-2 text-center">
+      {/* <ul className="flex items-center gap-4">
           {routes.map(({ name, path }) => (
             <li key={name}>
               <Typography
@@ -35,7 +22,14 @@ export function Footer({ brandName, brandLink, routes }) {
             </li>
           ))}
         </ul> */}
-      </div>
+      <span className="font-bold text-indigo-600 text-lg">
+        Excel Analytics Dashboard
+      </span>{" "}
+      &copy; {new Date().getFullYear()}
+      <br />
+      <span className="text-gray-500">
+        Made with <span className="text-pink-500">♥</span> by Shruti
+      </span>
     </footer>
   );
 }
