@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
 import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
@@ -10,6 +11,7 @@ function Upload() {
   const [error, setError] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
   const { showSuccess, showError, showWarning } = sweetAlert();
+  const navigate = useNavigate();
 
   const handleFileChange = (file) => {
     if (!file) return;
@@ -184,8 +186,8 @@ function Upload() {
               color="blue"
               className="px-6 py-2 font-bold rounded-full"
               onClick={() => {
-                console.log("Analyzing data:", parsedData);
                 showSuccess("Data analyzed successfully!");
+                navigate("/dashboard/charts");
               }}
             >
               Analyze
