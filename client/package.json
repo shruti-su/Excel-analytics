@@ -16,6 +16,8 @@
     "axios": "^1.10.0",
     "firebase": "^11.9.1",
     "headlessui": "^0.0.0",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.9.6",
     "prop-types": "^15.8.1",
     "react": "^19.1.0",
     "react-apexcharts": "^1.7.0",
