@@ -10,6 +10,7 @@ import { Home } from "/src/pages/dashboard";
 import { SignIn, SignUp } from "/src/pages/auth";
 import Attendence from "/src/pages/attendence";
 import Upload from "./pages/dashboard/upload";
+import { Charts } from "./pages/dashboard/charts";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -24,22 +25,30 @@ export const routes = [
         name: "dashboard",
         path: "/home",
         element: <Home />,
+        sidebar: true,
       },
       {
         icon: <HomeIcon {...icon} />,
         name: "Upload",
         path: "/upload",
         element: <Upload />,
+        sidebar: false,
       },
-      
+      {
+        icon: <TableCellsIcon {...icon} />,
+        name: "Charts",
+        path: "/charts",
+        element: <Charts />,
+        sidebar: false,
+      },
+
       {
         icon: <UserCircleIcon {...icon} />,
         name: "Attendence",
         path: "/Attendence",
         element: <Attendence />,
+        sidebar: true,
       },
-     
-      
     ],
   },
   {
@@ -60,8 +69,6 @@ export const routes = [
       },
     ],
   },
-
-  
-  ];
+];
 
 export default routes;

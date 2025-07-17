@@ -1,29 +1,30 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
 import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
 import fileuploadService from "/src/services/api/fileupload.js";
- 
+
 function Upload() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [parsedData, setParsedData] = useState([]);
   const [error, setError] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
   const { showSuccess, showError, showWarning } = sweetAlert();
+  const navigate = useNavigate();
 
   const handleFileChange = (file) => {
-    if (!file) {
-      return;
-    }
-    // Check file type by extension
+    if (!file) return;
+
     const allowedExtensions = [".xlsx", ".xls", ".csv"];
     const fileExtension = file.name
       .substring(file.name.lastIndexOf("."))
       .toLowerCase();
+
     if (allowedExtensions.includes(fileExtension)) {
       setSelectedFile(file);
       showSuccess("File selected successfully!");
-      // Parse file for preview
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = new Uint8Array(e.target.result);
@@ -43,8 +44,6 @@ function Upload() {
 
   const handleFileInputChange = (event) => {
     handleFileChange(event.target.files[0]);
-    // By setting the value to null, we ensure the onChange event will
-    // fire again if the same file is selected.
     event.target.value = null;
   };
 
@@ -64,6 +63,7 @@ function Upload() {
     const file = event.dataTransfer.files[0];
     handleFileChange(file);
   };
+
   const handleUpload = async () => {
     if (!selectedFile) {
       showWarning("Please select a file first.");
@@ -88,7 +88,8 @@ function Upload() {
       <h1 className="text-4xl font-extrabold font-mono tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-blue-700 to-blue-400 drop-shadow-lg mb-4 animate-fade-in-slow">
         Upload Excel File
       </h1>
-      {/* Only show upload card if no file is selected */}
+
+      {/* Upload Section */}
       {!selectedFile && (
         <Card
           className={`w-full max-w-[48rem] mx-auto mt-8 border-4 border-dotted bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 shadow-xl rounded-xl flex items-center justify-center text-center transition-colors duration-300 ${
@@ -132,13 +133,13 @@ function Upload() {
         </Card>
       )}
 
-      {/* File preview section */}
+      {/* File Preview Section */}
       {selectedFile && (
         <div className="w-full max-w-[48rem] mx-auto mt-6 p-6 bg-white rounded-xl shadow-lg flex flex-col items-center border border-blue-200">
           <Typography className="text-lg font-semibold text-gray-800 mb-2">
             Selected File: {selectedFile.name}
           </Typography>
-          {/* Table preview */}
+
           {parsedData.length > 0 && (
             <div className="overflow-auto w-full mb-4">
               <table className="min-w-full border border-gray-300">
@@ -165,18 +166,41 @@ function Upload() {
               </table>
             </div>
           )}
+
+          {/* Buttons Section */}
           <div className="flex gap-4 mt-2">
+            {/* Cancel Button */}
             <Button
               color="red"
               className="px-6 py-2 font-bold rounded-full"
-              onClick={() => { setSelectedFile(null); setParsedData([]); }}
+              onClick={() => {
+                setSelectedFile(null);
+                setParsedData([]);
+              }}
             >
               Cancel
             </Button>
+
+            {/* Analyze Button */}
+            <Button
+              color="blue"
+              className="px-6 py-2 font-bold rounded-full"
+              onClick={() => {
+                showSuccess("Data analyzed successfully!");
+                navigate("/dashboard/charts", { state: { parsedData } });
+              }}
+            >
+              Analyze
+            </Button>
+
+            {/* Submit Button */}
             <Button
               color="green"
               className="px-6 py-2 font-bold rounded-full"
-              onClick={async () => { await handleUpload(); setParsedData([]); }}
+              onClick={async () => {
+                await handleUpload();
+                setParsedData([]);
+              }}
             >
               Submit
             </Button>
@@ -186,6 +210,5 @@ function Upload() {
     </div>
   );
 }
-
 
 export default Upload;

@@ -38,44 +38,33 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     }
 });
 
+// // 📋 [GET] List all 
+router.get('/getall', auth, async (req, res) => {
+    try {
+        const uploads = await Upload.find({ user: req.user.id });
+        res.json(uploads);
+    } catch (err) {
+        console.error('❌ Error fetching uploads:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// delete 
+router.delete('/delete/:id', auth, async (req, res) => {
+    try {
+        const upload = await Upload.findById(req.params.id);
+        if (!upload) {
+            return res.status(404).json({ error: 'Upload not found' });
+        }
 
 
-// // Create new user (POST)
-// router.post('/users', async (req, res) => {
-//     try {
-//         const { name, email } = req.body;
-//         const user = new User({ name, email });
-//         await user.save();
-//         res.status(201).json(user);
-//     } catch (err) {
-//         console.error('❌ Error creating user:', err);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// });
-
-// // Get a user by ID (GET)
-// router.get('/users/:id', async (req, res) => {
-//     try {
-//         const user = await User.findById(req.params.id);
-//         if (!user) return res.status(404).json({ error: 'User not found' });
-//         res.json(user);
-//     } catch (err) {
-//         console.error('❌ Error fetching user:', err);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// });
-
-// // Delete user by ID
-// router.delete('/users/:id', async (req, res) => {
-//     try {
-//         const result = await User.findByIdAndDelete(req.params.id);
-//         if (!result) return res.status(404).json({ error: 'User not found' });
-//         res.json({ message: 'User deleted' });
-//     } catch (err) {
-//         console.error('❌ Error deleting user:', err);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// });
+        await Upload.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Upload deleted successfully' });
+    } catch (err) {
+        console.error('❌ Error deleting ');
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 module.exports = router;
