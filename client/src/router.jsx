@@ -11,6 +11,7 @@ import { SignIn, SignUp } from "/src/pages/auth";
 import Attendence from "/src/pages/attendence";
 import Upload from "./pages/dashboard/upload";
 import { Charts } from "./pages/dashboard/charts";
+import FileRecords from "./pages/dashboard/file-records";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -40,6 +41,13 @@ export const routes = [
         path: "/charts",
         element: <Charts />,
         sidebar: false,
+      },
+      {
+        icon: <TableCellsIcon {...icon} />,
+        name: "File Records",
+        path: "/file-records",
+        element: <FileRecords />,
+        sidebar: true,
       },
 
       {
