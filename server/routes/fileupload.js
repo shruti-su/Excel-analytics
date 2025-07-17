@@ -15,29 +15,29 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        // Parse file buffer to JSON
+        // Parse file buffer
         const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-        // Save to DB
+        const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        if (!rawData || rawData.length === 0) {
+            return res.status(400).json({ error: 'Uploaded file contains no data or headers.' });
+        }
         const uploadDoc = new Upload({
             user: req.user.id,
             fileName: req.file.originalname,
             fileType: req.file.originalname.split('.').pop().toLowerCase(),
             fileSize: req.file.size,
-            data: jsonData
+            data: rawData // Store the array of arrays directly
         });
         await uploadDoc.save();
 
-        res.json({ message: 'File uploaded and data saved', data: jsonData });
+        res.json({ message: 'File uploaded and data saved', data: rawData }); // Return the rawData
     } catch (err) {
         console.error('❌ Error uploading file:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error', details: err.message }); // Added details
     }
 });
-
 // // 📋 [GET] List all 
 router.get('/getall', auth, async (req, res) => {
     try {

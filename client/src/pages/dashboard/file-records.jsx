@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -11,6 +13,7 @@ function FileRecords() {
 
   const paginatorLeft = <Button type="button" icon="pi pi-refresh" text />;
   const paginatorRight = <Button type="button" icon="pi pi-download" text />;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFileRecords = async () => {
@@ -52,17 +55,33 @@ function FileRecords() {
       console.error("Error deleting record:", error);
     }
   };
+  const handleAnalyse = async (recordData) => {
+    const confirmed = await showConfirm("Do you want to analyse this file?");
+    if (!confirmed) return;
+    navigate("/dashboard/charts", { state: { parsedData: recordData } });
+  };
 
   // Delete button template for each row
   const deleteButtonTemplate = (rowData) => {
     return (
-      <Button
-        icon="pi pi-trash"
-        className="p-button-danger p-button-sm"
-        onClick={() => handleDelete(rowData.id)} // Use correct ID/key
-        tooltip="Delete"
-        tooltipOptions={{ position: "top" }}
-      />
+      <>
+        <Button
+          icon="pi pi-external-link"
+          label="Analyse"
+          className="p-button-danger p-button-sm mr-4"
+          onClick={() => handleAnalyse(rowData.data)} // Use correct ID/key
+          tooltip="Analyse"
+          tooltipOptions={{ position: "top" }}
+        />
+        <Button
+          icon="pi pi-trash"
+          label="Delete"
+          severity="danger"
+          onClick={() => handleDelete(rowData.id)} // Use correct ID/key
+          tooltip="Delete"
+          tooltipOptions={{ position: "top" }}
+        />
+      </>
     );
   };
 
