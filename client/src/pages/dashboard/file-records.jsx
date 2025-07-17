@@ -7,7 +7,7 @@ import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
 
 function FileRecords() {
   const [fileRecords, setFileRecords] = useState([]);
-  const { showSuccess, showError, showWarning } = sweetAlert();
+  const { showSuccess, showError, showWarning,showConfirm } = sweetAlert();
 
   const paginatorLeft = <Button type="button" icon="pi pi-refresh" text />;
   const paginatorRight = <Button type="button" icon="pi pi-download" text />;
@@ -28,7 +28,7 @@ function FileRecords() {
 
   // Handle delete action
   const handleDelete = async (recordId) => {
-    const confirmed = showWarning("Are you sure you want to delete this file record?");
+    const confirmed =  await showConfirm("Are you sure you want to delete this file record?");
     if (!confirmed) return;
 
     try {
