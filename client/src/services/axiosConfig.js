@@ -1,9 +1,15 @@
 // src/api/axiosConfig.js
 import axios from 'axios';
 
+// Correctly access the VITE_ prefixed variable
+const baseURL = import.meta.env.VITE_BASE_URL;
+
+// Add a check to ensure the baseURL is loaded correctly (good for debugging)
+
+
 const api = axios.create({
-    baseURL: 'http://localhost:5000/', // **IMPORTANT: Replace with your actual API base URL**
-    timeout: 10000, // Request will timeout after 10 seconds
+    baseURL: baseURL, // Now this will correctly be http://localhost:5000/
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
