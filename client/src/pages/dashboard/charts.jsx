@@ -737,14 +737,21 @@ export const Charts = () => {
                       const chart = chartRef.current;
                       const originalWidth = chart.width;
                       const originalHeight = chart.height;
-                      chart.resize(1000, 800); // Set to large dimensions for export
+                      const originalDPR = chart.options.devicePixelRatio || window.devicePixelRatio || 1;
+                      // Set to large dimensions and high devicePixelRatio for best quality
+                      chart.options.devicePixelRatio = 3;
+                      chart.resize(2000, 1600);
+                      chart.update('none');
                       let url;
                       if (chart && chart.toBase64Image) {
-                        url = chart.toBase64Image("image/png", 1); // Full quality PNG
+                        url = chart.toBase64Image("image/png", 1);
                       } else if (chart && chart.canvas && chart.canvas.toDataURL) {
                         url = chart.canvas.toDataURL("image/png", 1);
                       }
-                      chart.resize(originalWidth, originalHeight); // Reset to original after
+                      // Restore original size and devicePixelRatio
+                      chart.options.devicePixelRatio = originalDPR;
+                      chart.resize(originalWidth, originalHeight);
+                      chart.update('none');
                       if (url) {
                         const link = document.createElement("a");
                         link.href = url;
