@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from 'primereact/button';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import fileuploadService from '/src/services/api/fileupload.js';
+import React, { useState, useEffect } from "react";
+import { Button } from "primereact/button";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import fileuploadService from "/src/services/api/fileupload.js";
 import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
 
 function FileRecords() {
   const [fileRecords, setFileRecords] = useState([]);
-  const { showSuccess, showError, showWarning,showConfirm } = sweetAlert();
+  const { showSuccess, showError, showWarning, showConfirm } = sweetAlert();
 
   const paginatorLeft = <Button type="button" icon="pi pi-refresh" text />;
   const paginatorRight = <Button type="button" icon="pi pi-download" text />;
@@ -17,9 +17,21 @@ function FileRecords() {
       try {
         const records = await fileuploadService.getFileRecords();
         console.log("Fetched file records:", records);
-        setFileRecords(records);
+        // FIX: Corrected syntax for map function's implicit return of an object
+        const formattedRecords = Array.isArray(records)
+          ? records.map((record) => ({
+              // Removed 'return' keyword and ensured object literal is wrapped in parentheses
+              ...record,
+              id: record._id, // Map Mongoose's _id to 'id' for PrimeReact's dataKey
+              uploadedAt: record.uploadedAt
+                ? new Date(record.uploadedAt).toLocaleString()
+                : "N/A", // Ensure uploadedAt is formatted
+            }))
+          : [];
+        setFileRecords(formattedRecords); // Set the formatted records
       } catch (error) {
         console.error("Failed to fetch file records:", error);
+        showError("Failed to load file records.");
       }
     };
 
@@ -28,7 +40,9 @@ function FileRecords() {
 
   // Handle delete action
   const handleDelete = async (recordId) => {
-    const confirmed =  await showConfirm("Are you sure you want to delete this file record?");
+    const confirmed = await showConfirm(
+      "Are you sure you want to delete this file record?"
+    );
     if (!confirmed) return;
 
     try {
@@ -47,7 +61,7 @@ function FileRecords() {
         className="p-button-danger p-button-sm"
         onClick={() => handleDelete(rowData.id)} // Use correct ID/key
         tooltip="Delete"
-        tooltipOptions={{ position: 'top' }}
+        tooltipOptions={{ position: "top" }}
       />
     );
   };
@@ -66,18 +80,29 @@ function FileRecords() {
           paginator
           rows={5}
           rowsPerPageOptions={[5, 10, 25, 50]}
-          tableStyle={{ minWidth: '50rem' }}
+          tableStyle={{ minWidth: "100%" }}
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           currentPageReportTemplate="{first} to {last} of {totalRecords}"
           paginatorLeft={paginatorLeft}
           paginatorRight={paginatorRight}
+          selectionMode="single" // Optional: if you want row selection
+          dataKey="id" // Crucial: tell DataTable to use the 'id' field for unique row identification
+          emptyMessage="No file records found." // Message when table is empty
         >
-          <Column field="fileName" header="File Name" style={{ width: '30%' }} />
-          <Column field="uploadedAt" header="Uploaded At" style={{ width: '30%' }} />
+          <Column
+            field="fileName"
+            header="File Name"
+            style={{ width: "30%" }}
+          />
+          <Column
+            field="uploadedAt"
+            header="Uploaded At"
+            style={{ width: "30%" }}
+          />
           <Column
             body={deleteButtonTemplate}
             header="Actions"
-            style={{ width: '20%', textAlign: 'center' }}
+            style={{ width: "20%", textAlign: "center" }}
           />
         </DataTable>
       </div>

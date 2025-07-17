@@ -34,7 +34,7 @@ const fileuploadService = {
     },
     deleteFileRecord: async (id) => {
         try {
-            const response = await api.delete(`${USER_BASE_PATH}/delete/:id`);
+            const response = await api.delete(`${USER_BASE_PATH}/delete/${id}`);
             return response.data; // Axios puts the actual data in .data
         } catch (error) {
             console.error('Error deleting file record', error);
