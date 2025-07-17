@@ -17,6 +17,8 @@
     "chart.js": "^4.5.0",
     "firebase": "^11.9.1",
     "headlessui": "^0.0.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.6",
     "prop-types": "^15.8.1",

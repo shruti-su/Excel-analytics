@@ -23,6 +23,8 @@ import {
   RadialLinearScale,
   Title, // Added Title for chart options
 } from "chart.js";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 // Register all necessary Chart.js components
 ChartJS.register(
@@ -320,15 +322,15 @@ export const Charts = () => {
             backgroundColor:
               selectedChart === "Area Chart"
                 ? `rgba(${parseInt(
-                  colors[(i - 1) % colors.length].slice(1, 3),
-                  16
-                )}, ${parseInt(
-                  colors[(i - 1) % colors.length].slice(3, 5),
-                  16
-                )}, ${parseInt(
-                  colors[(i - 1) % colors.length].slice(5, 7),
-                  16
-                )}, 0.5)`
+                    colors[(i - 1) % colors.length].slice(1, 3),
+                    16
+                  )}, ${parseInt(
+                    colors[(i - 1) % colors.length].slice(3, 5),
+                    16
+                  )}, ${parseInt(
+                    colors[(i - 1) % colors.length].slice(5, 7),
+                    16
+                  )}, 0.5)`
                 : undefined,
             fill: selectedChart === "Area Chart",
             tension: 0.4, // Smooth lines
@@ -443,6 +445,35 @@ export const Charts = () => {
 
     setDynamicChartData({ labels, datasets, options: chartOptions });
   }, [selectedHeaders, selectedChart, dataRows, headers]); // Added dependencies
+
+  const downloadChartAsPDF = async () => {
+    const chartContainer = chartRef.current?.canvas?.parentNode;
+
+    if (!chartContainer) {
+      alert("Chart not available.");
+      return;
+    }
+
+    try {
+      const canvas = await html2canvas(chartContainer, {
+        backgroundColor: "#fff", // ensures white background in PDF
+        scale: 2, // high quality
+      });
+
+      const imageData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+      });
+
+      pdf.addImage(imageData, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save(`${selectedChart.replace(/\s/g, "_")}_chart.pdf`);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      alert("Something went wrong while downloading the chart as PDF.");
+    }
+  };
 
   // --- Form Submission Handler ---
   const handleSubmitChartSelection = (e) => {
@@ -713,7 +744,7 @@ export const Charts = () => {
       ) : (
         // --- Display Selected Chart and Input Form ---
         <div className="flex flex-col md:flex-row justify-center items-start gap-6 p-4">
-          <div className="w-full md:w-1/2 flex justify-center">
+          <div className="w-full md:w-2/6 flex justify-center">
             {showChartWithData && dynamicChartData ? (
               // Show dynamically generated chart with download button
               <div className="flex flex-col items-center w-full">
@@ -730,43 +761,63 @@ export const Charts = () => {
                     />
                   )}
                 </ChartBlock>
-                <button
-                  className="mt-4 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform font-semibold"
-                  onClick={() => {
-                    if (chartRef.current) {
-                      const chart = chartRef.current;
-                      const originalWidth = chart.width;
-                      const originalHeight = chart.height;
-                      const originalDPR = chart.options.devicePixelRatio || window.devicePixelRatio || 1;
-                      // Set to large dimensions and high devicePixelRatio for best quality
-                      chart.options.devicePixelRatio = 3;
-                      chart.resize(2000, 1600);
-                      chart.update('none');
-                      let url;
-                      if (chart && chart.toBase64Image) {
-                        url = chart.toBase64Image("image/png", 1);
-                      } else if (chart && chart.canvas && chart.canvas.toDataURL) {
-                        url = chart.canvas.toDataURL("image/png", 1);
+                <div className="w-full text-center ">
+                  <button
+                    className="mt-4  w-full md:w-5/12 mr-0 md:mr-2  bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform font-semibold"
+                    onClick={() => {
+                      if (chartRef.current) {
+                        const chart = chartRef.current;
+                        const originalWidth = chart.width;
+                        const originalHeight = chart.height;
+                        const originalDPR =
+                          chart.options.devicePixelRatio ||
+                          window.devicePixelRatio ||
+                          1;
+                        // Set to large dimensions and high devicePixelRatio for best quality
+                        chart.options.devicePixelRatio = 3;
+                        chart.resize(2000, 1600);
+                        chart.update("none");
+                        let url;
+                        if (chart && chart.toBase64Image) {
+                          url = chart.toBase64Image("image/png", 1);
+                        } else if (
+                          chart &&
+                          chart.canvas &&
+                          chart.canvas.toDataURL
+                        ) {
+                          url = chart.canvas.toDataURL("image/png", 1);
+                        }
+                        // Restore original size and devicePixelRatio
+                        chart.options.devicePixelRatio = originalDPR;
+                        chart.resize(originalWidth, originalHeight);
+                        chart.update("none");
+                        if (url) {
+                          const link = document.createElement("a");
+                          link.href = url;
+                          link.download = `${selectedChart.replace(
+                            /\s/g,
+                            "_"
+                          )}_chart.png`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        } else {
+                          alert(
+                            "Unable to download chart. Try a different browser or update react-chartjs-2."
+                          );
+                        }
                       }
-                      // Restore original size and devicePixelRatio
-                      chart.options.devicePixelRatio = originalDPR;
-                      chart.resize(originalWidth, originalHeight);
-                      chart.update('none');
-                      if (url) {
-                        const link = document.createElement("a");
-                        link.href = url;
-                        link.download = `${selectedChart.replace(/\s/g, "_")}_chart.png`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      } else {
-                        alert("Unable to download chart. Try a different browser or update react-chartjs-2.");
-                      }
-                    }
-                  }}
-                >
-                  Download as PNG
-                </button>
+                    }}
+                  >
+                    Download as PNG
+                  </button>
+                  <button
+                    className="mt-2 w-full md:w-5/12    bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform font-semibold"
+                    onClick={downloadChartAsPDF}
+                  >
+                    Download as PDF
+                  </button>
+                </div>
               </div>
             ) : (
               // Show static example of selected chart
@@ -832,9 +883,11 @@ const ChartBlock = ({
   onClick,
 }) => (
   <div
-    className={`bg-gradient-to-br ${typeof color === "string" ? color : "from-white to-gray-100"
-      } rounded-2xl shadow-lg p-4 flex flex-col items-center justify-center border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-200 ${onClick ? "cursor-pointer" : ""
-      }
+    className={`bg-gradient-to-br ${
+      typeof color === "string" ? color : "from-white to-gray-100"
+    } rounded-2xl shadow-lg p-4 flex flex-col items-center justify-center border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-200 ${
+      onClick ? "cursor-pointer" : ""
+    }
     w-full aspect-square max-w-[${size}px] max-h-[${size}px]`} /* Apply responsive sizing here */
     // Removed fixed width/height from style, using Tailwind classes instead
     onClick={() => onClick && onClick(chartName)} // Call onClick if provided
