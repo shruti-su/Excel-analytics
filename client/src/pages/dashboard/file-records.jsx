@@ -1,0 +1,88 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from 'primereact/button';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import fileuploadService from '/src/services/api/fileupload.js';
+import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
+
+function FileRecords() {
+  const [fileRecords, setFileRecords] = useState([]);
+  const { showSuccess, showError, showWarning } = sweetAlert();
+
+  const paginatorLeft = <Button type="button" icon="pi pi-refresh" text />;
+  const paginatorRight = <Button type="button" icon="pi pi-download" text />;
+
+  useEffect(() => {
+    const fetchFileRecords = async () => {
+      try {
+        const records = await fileuploadService.getFileRecords();
+        console.log("Fetched file records:", records);
+        setFileRecords(records);
+      } catch (error) {
+        console.error("Failed to fetch file records:", error);
+      }
+    };
+
+    fetchFileRecords();
+  }, []);
+
+  // Handle delete action
+  const handleDelete = async (recordId) => {
+    const confirmed = showWarning("Are you sure you want to delete this file record?");
+    if (!confirmed) return;
+
+    try {
+      await fileuploadService.deleteFileRecord(recordId); // Assuming you have this API
+      setFileRecords((prev) => prev.filter((rec) => rec.id !== recordId));
+    } catch (error) {
+      console.error("Error deleting record:", error);
+    }
+  };
+
+  // Delete button template for each row
+  const deleteButtonTemplate = (rowData) => {
+    return (
+      <Button
+        icon="pi pi-trash"
+        className="p-button-danger p-button-sm"
+        onClick={() => handleDelete(rowData.id)} // Use correct ID/key
+        tooltip="Delete"
+        tooltipOptions={{ position: 'top' }}
+      />
+    );
+  };
+
+  return (
+    <>
+      <div className="font-bold text-center flex flex-col items-center justify-center w-full mt-14">
+        <h1 className="text-5xl text-center font-extrabold font-mono tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-blue-700 to-purple-400 drop-shadow-lg mb-4 animate-fade-in-slow">
+          Previous File Records
+        </h1>
+      </div>
+
+      <div className="card">
+        <DataTable
+          value={fileRecords}
+          paginator
+          rows={5}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          tableStyle={{ minWidth: '50rem' }}
+          paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          currentPageReportTemplate="{first} to {last} of {totalRecords}"
+          paginatorLeft={paginatorLeft}
+          paginatorRight={paginatorRight}
+        >
+          <Column field="fileName" header="File Name" style={{ width: '30%' }} />
+          <Column field="uploadedAt" header="Uploaded At" style={{ width: '30%' }} />
+          <Column
+            body={deleteButtonTemplate}
+            header="Actions"
+            style={{ width: '20%', textAlign: 'center' }}
+          />
+        </DataTable>
+      </div>
+    </>
+  );
+}
+
+export default FileRecords;

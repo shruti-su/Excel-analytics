@@ -22,7 +22,26 @@ const fileuploadService = {
         } catch (error) {
             console.error('Error uploading file ');
         }
+    },
+    getFileRecords: async () => {
+        try {
+            const response = await api.get(`${USER_BASE_PATH}getall`);
+            return response.data; // Axios puts the actual data in .data
+        } catch (error) {
+            console.error('Error fetching file records', error);
+            throw error; // Re-throw the error for further handling if needed
+        }
+    },
+    deleteFileRecord: async (id) => {
+        try {
+            const response = await api.delete(`${USER_BASE_PATH}/delete/:id`);
+            return response.data; // Axios puts the actual data in .data
+        } catch (error) {
+            console.error('Error deleting file record', error);
+            throw error; // Re-throw the error for further handling if needed
+        }
     }
+
 
 }
 
