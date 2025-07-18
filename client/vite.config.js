@@ -7,4 +7,9 @@ export default defineConfig({
   resolve: {
     alias: [{ find: "@", replacement: "/src" }],
   },
+  server: {
+    allowedHosts: [
+      'excel-analytics-docker.onrender.com'
+    ]
+  },
 }); 
