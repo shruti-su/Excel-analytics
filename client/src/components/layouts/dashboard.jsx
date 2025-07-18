@@ -21,7 +21,7 @@ export function Dashboard() {
   // console.log("Dashboard: `routes` prop:", routes);
 
   return (
-    <div className="min-h-screen  bg-blue-gray-50/50  bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl border-indigo-200">
+    <div className=" bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl">
       {/* Sidenav component should receive the full routes or filtered ones for navigation */}
       <Sidenav
         routes={routes.filter((r) => r.layout === "dashboard")} // Pass only dashboard routes to Sidenav
@@ -29,7 +29,7 @@ export function Dashboard() {
           sidenavType === "dark" ? "/img/logo-ct.png" : "/img/logo-ct-dark.png"
         }
       />
-      <div className="p-4 xl:ml-80 h-screen overflow-hidden grid grid-rows-12 gap-2">
+      <div className="p-4 xl:ml-80 h-screen overflow-hidden grid grid-rows-12 ">
         <div className="row-span-1 overflow-hidden">
           <DashboardNavbar />
           <Configurator />
@@ -43,7 +43,7 @@ export function Dashboard() {
             <Cog6ToothIcon className="w-5 h-5" />
           </IconButton>
         </div>
-        <div className="row-span-10 overflow-auto">
+        <div className="row-span-10 overflow-auto ">
           <Routes>
             {routes.map(({ layout, pages }) => {
               if (layout === "dashboard") {
