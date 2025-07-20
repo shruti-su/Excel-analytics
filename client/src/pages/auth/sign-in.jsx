@@ -95,7 +95,7 @@ export function SignIn() {
 
   return (
     <motion.section
-      className="flex flex-col items-center justify-center min-h-screen py-8 px-4 bg-[url('/img/907931.jpg')] bg-cover bg-center" // Background image applied here
+      className="flex flex-col items-center justify-center min-h-screen py-8 px-4 bg-[url('/img/sl_122221_47450_06.jpg')] bg-cover bg-center" // Background image applied here
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -104,15 +104,7 @@ export function SignIn() {
         variants={itemVariants}
         className="w-full max-w-md lg:max-w-lg rounded-xl overflow-hidden shadow-2xl shadow-blue-200" // Main container for image and form
       >
-        <div className="w-full h-64 md:h-80 lg:h-96 overflow-hidden rounded-t-xl">
-          {" "}
-          {/* Image container */}
-          <img
-            src="/img/907931.jpg" // Your image source
-            className="object-cover w-full h-full"
-            alt="Sign In Background"
-          />
-        </div>
+        
         <div className="p-6 md:p-8 bg-white rounded-b-xl">
           {" "}
           {/* Form container */}
