@@ -11,6 +11,9 @@ import { useAuth } from "@/components/auth/AuthContext"; // Adjust the import pa
 import AuthService from "@/services/api/auth"; // Import the AuthService for API calls
 import { signInWithPopup, auth, provider } from "@/firebase";
 import { motion } from "framer-motion"; // Import Framer Motion
+import { InputText } from 'primereact/inputtext';
+import { FloatLabel } from 'primereact/floatlabel';
+import { Password } from 'primereact/password';
 
 export function SignIn() {
   const { login } = useAuth(); // Destructure the login function from useAuth
@@ -70,8 +73,8 @@ export function SignIn() {
       // Catch any network errors or issues with the API call
       setError(
         err.response?.data?.msg ||
-          err.response?.data?.error ||
-          "An error occurred during sign-in. Please try again."
+        err.response?.data?.error ||
+        "An error occurred during sign-in. Please try again."
       );
       console.error(err);
     }
@@ -104,7 +107,7 @@ export function SignIn() {
         variants={itemVariants}
         className="w-full max-w-md lg:max-w-lg rounded-xl overflow-hidden shadow-2xl shadow-blue-200" // Main container for image and form
       >
-        
+
         <div className="p-6 md:p-8 bg-white rounded-b-xl">
           {" "}
           {/* Form container */}
@@ -132,45 +135,33 @@ export function SignIn() {
             {/* Removed max-w-screen-lg from form */}
             <div className="flex flex-col gap-6 mb-4">
               <motion.div variants={itemVariants}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="mb-1.5 font-medium text-gray-700" // Removed -mb-3, added mb-1.5
-                >
-                  Your email
-                </Typography>
-                <Input
-                  size="lg"
-                  placeholder="name@mail.com"
-                  className="border border-blue-gray-200 focus:border-indigo-500 rounded-lg px-4 py-3 text-gray-900 bg-white placeholder-gray-500" // Changed to full border
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <div className="relative w-full">
+                  <FloatLabel>
+                    <InputText
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-indigo-500"
+                    />
+                    <label htmlFor="email">Your email</label>
+                  </FloatLabel>
+                </div>
               </motion.div>
               <motion.div variants={itemVariants}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="mb-1.5 font-medium text-gray-700" // Removed -mb-3, added mb-1.5
-                >
-                  Password
-                </Typography>
-                <Input
-                  type="password"
-                  size="lg"
-                  placeholder="****"
-                  className="border border-blue-gray-200 focus:border-indigo-500 rounded-lg px-4 py-3 text-gray-900 bg-white placeholder-gray-500" // Changed to full border
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="relative w-full">
+                  <FloatLabel>
+                    <Password
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full"  // container width
+                      inputClassName="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-indigo-500" // actual input field style
+                      toggleMask
+                      feedback={false}
+                    />
+                    <label htmlFor="password">Password</label>
+                  </FloatLabel>
+                </div>
               </motion.div>
             </div>
             {/* Display error message if any */}
