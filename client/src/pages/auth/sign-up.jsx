@@ -10,6 +10,9 @@ import { useAuth } from "@/components/auth/AuthContext";
 import AuthService from "@/services/api/auth";
 import { signInWithPopup, auth, provider } from "@/firebase";
 import { motion } from "framer-motion";
+import { InputText } from 'primereact/inputtext';
+import { FloatLabel } from 'primereact/floatlabel';
+import { Password } from 'primereact/password';
 
 export function SignUp() {
   const { login } = useAuth();
@@ -150,7 +153,6 @@ export function SignUp() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full"
                   inputClassName="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-indigo-500"
-                  toggleMask
                   feedback={false}
                 />
                 <label htmlFor="password">Password</label>
@@ -165,7 +167,6 @@ export function SignUp() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full"
                   inputClassName="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-indigo-500"
-                  toggleMask
                   feedback={false}
                 />
                 <label htmlFor="confirm-password">Confirm Password</label>

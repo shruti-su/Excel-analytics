@@ -3,7 +3,9 @@ const router = express.Router();
 const authcontroller = require('../controllers/authcontroller');
 const { check } = require('express-validator');
 
+
 const auth = require('../middleware/authMiddleware');
+
 
 router.post('/login', [
   // Validation checks for login
@@ -25,5 +27,10 @@ router.post('/signup',
   authcontroller.signup
 );
 router.post("/google-login", authcontroller.googleLogin);
+router.post("/forgot-password", authcontroller.forgotPassword);
+
+
+// router.post("/forgot-password", authcontroller.forgotPassword);
+router.post("/reset-password", authcontroller.resetPassword);
 
 module.exports = router;

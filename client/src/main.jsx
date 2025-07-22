@@ -9,9 +9,7 @@ import { PrimeReactProvider, PrimeReactContext } from "primereact/api";
 
 /* Core PrimeReact CSS */
 import "primereact/resources/themes/lara-light-indigo/theme.css";
-import { InputText } from 'primereact/inputtext';
-import { FloatLabel } from 'primereact/floatlabel';
-import { Password } from 'primereact/password';
+
 // import "primereact/resources/themes/bootstrap4-light-blue/theme.css";
 /* Choose your PrimeReact theme here 
 primereact/resources/themes/bootstrap4-light-blue/theme.css

@@ -2,8 +2,19 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator'); // For input validation
 const User = require('../models/User');
+const nodemailer = require('nodemailer');
+const OTP = require('../models/otp'); // Import OTP model
+
 
 // ...existing code...
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.GMAIL, // Your Gmail address (e.g., 'your_email@gmail.com')
+        pass: process.env.GMAIL_PASSWORD // The generated App Password
+    }
+});
+
 
 exports.login = async (req, res) => {
     const errors = validationResult(req);
@@ -159,4 +170,84 @@ exports.googleLogin = async (req, res) => {
         console.error('❌ Error during Google login:', err);
         res.status(500).json({ msg: 'Server error' });
     }
+};
+
+exports.forgotPassword = async (req, res) => {
+
+    try {
+        const { email } = req.body;
+
+        // Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+        // Generate OTP (One Time Password)
+        const otp = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit OTP
+        // Save OTP to the database
+        const otpEntry = new OTP({
+            email,
+            otp,
+        });
+        await otpEntry.save();
+        // Send OTP via email
+        try {
+            // Define email options
+            const mailOptions = {
+                from: process.env.GMAIL, // Sender address (must be your Gmail address)
+                to: email, // Recipient email address
+                subject: "Password Reset otp", // Subject line
+                text: "text", // Plain text body
+                html: `<h1>Password Reset otp</h1><p>Your OTP is: <strong>${otp}</strong></p>` // HTML body (optional, can be used instead of or in addition to text)
+            };
+            // Send the email
+            const info = await transporter.sendMail(mailOptions);
+            console.log('Email sent: %s', info.messageId);
+            // You can log the preview URL for testing emails in development if you're not sending to a real address
+            // console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+            res.status(200).json({ success: true, message: 'Email sent successfully!', messageId: info.messageId, });
+
+        } catch (error) {
+            console.error('Error sending email:', error);
+            res.status(500).json({ success: false, message: 'Failed to send email.', error: error.message });
+        }
+    } catch (error) {
+        console.error('Error in forgotPassword:', error);
+        res.status(500).json({ success: false, message: 'Failed to process forgot password request.', error: error.message });
+    }
+
+};
+
+exports.resetPassword = async (req, res) => {
+    const { otp, email, newPassword } = req.body;
+
+    try {
+        // Find the OTP entry
+        const otpEntry = await OTP.findOne({ email, otp });
+        if (!otpEntry) {
+            return res.status(400).json({ success: false, message: 'Invalid OTP or email.' });
+        }
+
+        // Check if OTP is expired
+        const currentTime = new Date();
+        if (otpEntry.createdAt.getTime() + 5 * 60 * 1000 < currentTime.getTime()) {
+            return res.status(400).json({ success: false, message: 'OTP has expired.' });
+        }
+
+        // Hash new password and update user
+        const salt = await bcrypt.genSalt(10);
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+        // Update user's password
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.status(200).json({ success: true, message: 'Password reset successfully!' });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        res.status(500).json({ success: false, message: 'Failed to reset password.', error: error.message });
+    }
+
 };
