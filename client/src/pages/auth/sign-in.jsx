@@ -150,14 +150,12 @@ export function SignIn() {
               <motion.div variants={itemVariants}>
                 <div className="relative w-full">
                   <FloatLabel>
-                    <Password
+                    <InputText
                       id="password"
+                      type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full"  // container width
-                      inputClassName="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-indigo-500" // actual input field style
-                      toggleMask
-                      feedback={false}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-indigo-500"
                     />
                     <label htmlFor="password">Password</label>
                   </FloatLabel>
