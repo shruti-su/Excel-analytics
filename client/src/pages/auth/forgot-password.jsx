@@ -132,7 +132,6 @@ export function Forgotpassword() {
                         </Typography>
                     </motion.div>
                 </div>
-
                 <Stepper ref={stepperRef} style={{ flexBasis: "50rem" }} orientation="vertical">
                     <StepperPanel header="Enter Email">
                         <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
@@ -146,9 +145,15 @@ export function Forgotpassword() {
                                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-indigo-500"
                                         disabled={loading}
                                     />
-                                    <label htmlFor="email" className="block text-sm text-gray-700 mb-2">Your Email</label>
+                                    <label
+                                        htmlFor="email"
+                                        className="block text-sm text-gray-700 "  /* 🔧 Added spacing here */
+                                    >
+                                        Your Email
+                                    </label>
                                 </FloatLabel>
                             </motion.div>
+
                             {error && (
                                 <motion.div variants={itemVariants}>
                                     <Typography variant="small" color="red" className="text-center">
@@ -156,8 +161,14 @@ export function Forgotpassword() {
                                     </Typography>
                                 </motion.div>
                             )}
+
                             <motion.div variants={itemVariants}>
-                                <Button type="submit" fullWidth className="bg-indigo-600" disabled={loading}>
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    className="bg-indigo-600"
+                                    disabled={loading}
+                                >
                                     {loading ? "Sending..." : "Send OTP"}
                                 </Button>
                             </motion.div>
@@ -166,6 +177,7 @@ export function Forgotpassword() {
 
                     <StepperPanel header="Reset Password">
                         <form onSubmit={handleResetPassword} className="flex flex-col gap-6">
+                            {/* OTP */}
                             <motion.div variants={itemVariants}>
                                 <FloatLabel>
                                     <InputText
@@ -179,6 +191,7 @@ export function Forgotpassword() {
                                 </FloatLabel>
                             </motion.div>
 
+                            {/* New Password */}
                             <motion.div variants={itemVariants}>
                                 <FloatLabel>
                                     <Password
@@ -194,6 +207,7 @@ export function Forgotpassword() {
                                 </FloatLabel>
                             </motion.div>
 
+                            {/* Confirm Password */}
                             <motion.div variants={itemVariants}>
                                 <FloatLabel>
                                     <Password
@@ -217,18 +231,23 @@ export function Forgotpassword() {
                                 </motion.div>
                             )}
 
+                            {/* Buttons */}
                             <div className="flex py-4 gap-2">
                                 <Button
                                     onClick={() => stepperRef.current.prevCallback()}
                                     className="bg-gray-300 text-gray-800 hover:bg-gray-400 transition-all duration-150"
+                                    type="button"
                                 >
                                     Back
                                 </Button>
+
+                                {/* ✅ Submit button for password reset */}
                                 <Button
-                                    onClick={() => stepperRef.current.nextCallback()}
+                                    type="submit"
                                     className="bg-indigo-600 text-white hover:bg-indigo-700 transition-all duration-150"
+                                    disabled={loading}
                                 >
-                                    Next
+                                    {loading ? "Resetting..." : "Reset Password"}
                                 </Button>
                             </div>
                         </form>
