@@ -7,7 +7,7 @@ import {
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
 import { Home } from "/src/pages/dashboard";
-import { SignIn, SignUp } from "/src/pages/auth";
+import { SignIn, SignUp, Forgotpassword } from "/src/pages/auth";
 import Attendence from "/src/pages/attendence";
 import Upload from "./pages/dashboard/upload";
 import { Charts } from "./pages/dashboard/charts";
@@ -74,6 +74,12 @@ export const routes = [
         name: "sign up",
         path: "/sign-up",
         element: <SignUp />,
+      },
+      {
+        icon: <InformationCircleIcon {...icon} />,
+        name: "forgot password",
+        path: "/forgot-password",
+        element: <Forgotpassword/>,
       },
     ],
   },

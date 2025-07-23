@@ -200,7 +200,7 @@ export function SignIn() {
                   variant="small"
                   className="font-medium text-gray-900"
                 >
-                  <a href="#" className="text-indigo-600 hover:text-indigo-800">
+                  <a href="#" className="text-indigo-600 hover:text-indigo-800" onClick={() => navigate("/auth/forgot-password")}>
                     Forgot Password
                   </a>
                 </Typography>

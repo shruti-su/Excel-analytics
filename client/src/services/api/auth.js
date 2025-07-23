@@ -33,6 +33,24 @@ const AuthService = {
             throw error; // Re-throw the error to be handled by the calling component
         }
     },
+    forgotPassword: async (email) => {
+        try {
+            const response = await api.post(`${USER_BASE_PATH}forgot-password`, { email });
+            return response.data; // Axios puts the actual data in .data
+        } catch (error) {
+            console.error('Error sending password reset email:', error);
+            throw error; // Re-throw the error to be handled by the calling component
+        }      
+    },
+    resetPassword: async (resetData) => {
+        try {
+            const response = await api.post(`${USER_BASE_PATH}reset-password`, resetData);
+            return response.data; // Axios puts the actual data in .data
+        } catch (error) {
+            console.error('Error resetting password:', error);
+            throw error; // Re-throw the error to be handled by the calling component
+        }
+    },
     /**
      * Fetches all users.
      * @returns {Promise<Array>} A promise that resolves to an array of user objects.
