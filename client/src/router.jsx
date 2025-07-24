@@ -14,6 +14,7 @@ import { Charts } from "./pages/dashboard/charts";
 import FileRecords from "./pages/dashboard/file-records";
 import Unauthorised from "/src/pages/unauthorised/unauthorised";
 import AdminHome from "./pages/admin/AdminHome"; // Adjust the path as needed
+import UserManagement from "./pages/admin/user-management"; // Adjust the path as needed
 
 
 const icon = {
@@ -70,6 +71,13 @@ export const routes = [
         name: "Admin Dashboard",
         path: "/home",
         element: <AdminHome />,
+        sidebar: true,
+      },
+      {
+        icon: <UserCircleIcon {...icon} />,
+        name: "User Management",
+        path: "/user-management",
+        element: <UserManagement />,
         sidebar: true,
       },
     ],

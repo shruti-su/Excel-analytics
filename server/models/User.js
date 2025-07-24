@@ -34,6 +34,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
-    }
+    },
+    lastLogin: {
+        type: Date,
+        default: null
+    },
 });
 module.exports = mongoose.model('User', UserSchema);

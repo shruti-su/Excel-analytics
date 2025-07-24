@@ -54,6 +54,7 @@ app.use('/api', userRoutes);
 app.use('/student', studentRoutes);
 app.use('/employee', EmployeeRoutes);
 app.use('/upload', UploadRoutes); // <--- ADD THIS LINE: Use the upload routes
+app.use('/admin', require('./routes/admin-route')); // <--- ADD THIS LINE: Use the admin routes
 
 
 app.listen(PORT, () => {

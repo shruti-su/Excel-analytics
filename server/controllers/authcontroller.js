@@ -46,11 +46,13 @@ exports.login = async (req, res) => {
                 role: user.role, // Include role in the payload
             },
         };
+        user.lastLogin = new Date(); // Update last login time
+        await user.save(); // Save the updated user with last login time
 
         jwt.sign(
             payload,
             process.env.JWT_SECRET,
-            { expiresIn: '7d' }, // Token expires in 7 days (1 week)
+            { expiresIn: '1d' }, // Token expires in 7 days (1 week)
             (err, token) => {
                 if (err) throw err;
                 res.json({ token, msg: 'Logged in successfully!' });
@@ -85,6 +87,8 @@ exports.signup = async (req, res) => {
             name,
             email,
             password, // Password will be hashed below
+            lastLogin: new Date() // Set last login time
+
         });
 
         // Hash password
@@ -107,7 +111,7 @@ exports.signup = async (req, res) => {
             const token = jwt.sign(
                 payload,
                 process.env.JWT_SECRET,
-                { expiresIn: '7d' }
+                { expiresIn: '1d' }
             );
             res.json({ token, msg: 'User registered successfully!' });
         } catch (err) {
@@ -139,7 +143,7 @@ exports.googleLogin = async (req, res) => {
             const token = jwt.sign(
                 payload,
                 process.env.JWT_SECRET,
-                { expiresIn: '7d' }
+                { expiresIn: '1d' }
             );
             return res.json({ token, msg: 'Logged in successfully!' });
         }
@@ -147,8 +151,9 @@ exports.googleLogin = async (req, res) => {
         user = new User({
             name,
             email,
-            password: 'google-auth', // Placeholder password, not used for Google login
+            password: await bcrypt.hash('password', await bcrypt.genSalt(10)), // Placeholder password, not used for Google login
             role: 'user', // Default role for new users
+            lastLogin: new Date() // Set last login time
         });
         await user.save();
         // Create JWT for the new user
@@ -158,12 +163,14 @@ exports.googleLogin = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role, // Include role in the payload
+                lastLogin: new Date() // Set last login time
+
             },
         };
         const token = jwt.sign(
             payload,
             process.env.JWT_SECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '1d' }
         );
         res.json({ token, msg: 'User registered and logged in successfully!' });
     } catch (err) {
