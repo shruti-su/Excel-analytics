@@ -16,7 +16,7 @@ import { FloatLabel } from 'primereact/floatlabel';
 import { Password } from 'primereact/password';
 
 export function SignIn() {
-  const { login } = useAuth(); // Destructure the login function from useAuth
+  const { login, userRole } = useAuth(); // Destructure the login function from useAuth
   const navigate = useNavigate(); // Hook to programmatically navigate
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,7 +64,13 @@ export function SignIn() {
       // Check simulated credentials
       if (response.msg === "Logged in successfully!") {
         login(response.token); // Call the login function from AuthContext to update global state
-        navigate("/dashboard/home"); // Redirect to the dashboard after successful login
+        // 👉 Redirect based on role
+        const role = userRole() || "user"; // fallback to 'user' if undefined
+        if (role === "admin") {
+          navigate("/admin/home");
+        } else {
+          navigate("/dashboard/home");
+        }
       } else {
         // If simulated credentials don't match, set an error
         setError("Invalid email or password. Please try again.");
@@ -85,12 +91,19 @@ export function SignIn() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       // console.log("Logged in user:", user);
-      const response = await AuthService.googleLogin({
+      await AuthService.googleLogin({
         email: user.email,
         name: user.displayName,
+      }).then((response) => {
+        login(response.token);
+        const role = userRole() || "user"; // fallback to 'user' if undefined
+        if (role === "admin") {
+          navigate("/admin/home");
+        } else {
+          navigate("/dashboard/home");
+        }
       });
-      login(response.token);
-      navigate("/dashboard/home");
+
     } catch (error) {
       console.error("Login error:", error);
     }

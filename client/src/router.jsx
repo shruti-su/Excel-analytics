@@ -13,6 +13,8 @@ import Upload from "./pages/dashboard/upload";
 import { Charts } from "./pages/dashboard/charts";
 import FileRecords from "./pages/dashboard/file-records";
 import Unauthorised from "/src/pages/unauthorised/unauthorised";
+import AdminHome from "./pages/admin/AdminHome"; // Adjust the path as needed
+
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -61,6 +63,18 @@ export const routes = [
     ],
   },
   {
+    layout: "admin",
+    pages: [
+      {
+        icon: <HomeIcon {...icon} />,
+        name: "Admin Dashboard",
+        path: "/home",
+        element: <AdminHome />,
+        sidebar: true,
+      },
+    ],
+  },
+  {
     title: "unauthorised",
     layout: "unauthorised",
     pages: [
@@ -69,7 +83,7 @@ export const routes = [
         name: "Unauthorised",
         path: "/",
         element: <Unauthorised />,
-  }
+      },
     ],
   },
   {
@@ -92,7 +106,7 @@ export const routes = [
         icon: <InformationCircleIcon {...icon} />,
         name: "forgot password",
         path: "/forgot-password",
-        element: <Forgotpassword/>,
+        element: <Forgotpassword />,
       },
     ],
   },
