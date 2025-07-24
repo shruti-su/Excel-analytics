@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext'; // Adjust path if you renamed index.jsx
 // import {} from '@/pages'
 
-const ProtectedRoute = ({ redirectPath = '/auth/sign-in' }) => {
+const ProtectedRoute = ({ redirectPath = '/auth/sign-in', allowedRoles }) => {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {

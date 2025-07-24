@@ -19,6 +19,7 @@ import {
   LineElement,
 } from "chart.js";
 import { Bar, Pie, Line, Doughnut, Radar, PolarArea } from "react-chartjs-2";
+import { useAuth } from "../../components/auth/AuthContext";
 
 // Register Chart.js components (IMPORTANT: Do this once, outside the component function)
 ChartJS.register(
@@ -37,10 +38,13 @@ ChartJS.register(
 export function Home() {
   const navigate = useNavigate();
   const { showSuccess } = sweetAlert();
+  const { userRole } = useAuth(); // Destructure the login function from useAuth
 
   useEffect(() => {
     // Show success alert after a small delay to allow animations to start
     const timer = setTimeout(() => {}, 500);
+    console.log(userRole());
+
 
     return () => clearTimeout(timer); // Cleanup timer
   }, [showSuccess]);

@@ -12,6 +12,7 @@ import Attendence from "/src/pages/attendence";
 import Upload from "./pages/dashboard/upload";
 import { Charts } from "./pages/dashboard/charts";
 import FileRecords from "./pages/dashboard/file-records";
+import Unauthorised from "/src/pages/unauthorised/unauthorised";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -57,6 +58,18 @@ export const routes = [
         element: <Attendence />,
         sidebar: true,
       },
+    ],
+  },
+  {
+    title: "unauthorised",
+    layout: "unauthorised",
+    pages: [
+      {
+        icon: <InformationCircleIcon {...icon} />,
+        name: "Unauthorised",
+        path: "/",
+        element: <Unauthorised />,
+  }
     ],
   },
   {

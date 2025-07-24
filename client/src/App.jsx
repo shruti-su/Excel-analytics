@@ -14,7 +14,7 @@ function App() {
       
     <Routes>
       {/* <AuthProvider> */}
-      <Route element={<ProtectedRoute />}>
+      <Route element={<ProtectedRoute allowedRoles={['user']}/>}>
           <Route path="/dashboard/*" element={<Dashboard />} />
       </Route>
       <Route path="/auth/*" element={<Auth />} />

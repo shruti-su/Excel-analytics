@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext(null);
 
@@ -46,6 +47,18 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('token'); // Clear stored data
   };
+  const userRole = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        return decoded.user.role;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  };
 
   // Simple check for authentication status
   const isAuthenticated = !!user;
@@ -57,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, userRole }}>
       {children}
     </AuthContext.Provider>
   );
