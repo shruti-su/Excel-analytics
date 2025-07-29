@@ -12,6 +12,7 @@ import {
 import { Dashboard, Auth, AdminPanel } from "/src/components/layouts";
 import { AuthProvider } from "@/components/auth/AuthContext"; // Import your AuthProvider
 import ProtectedRoute from "@/components/auth/ProtectedRoute"; // Import your ProtectedRoute component
+import General from "./pages/general";  
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <AuthProvider>
         <Routes>
           {/* <AuthProvider> */}
+          <Route path="*" element={<General/>} />
           <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
             <Route path="/dashboard/*" element={<Dashboard />} />
           </Route>

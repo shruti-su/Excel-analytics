@@ -6,11 +6,11 @@ import {
   ServerStackIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
-import { Home } from "/src/pages/dashboard";
+import  Home  from "/src/pages/dashboard/home";
 import { SignIn, SignUp, Forgotpassword } from "/src/pages/auth";
 import Attendence from "/src/pages/attendence";
 import Upload from "./pages/dashboard/upload";
-import { Charts } from "./pages/dashboard/charts";
+import  {Charts}  from "./pages/dashboard";
 import FileRecords from "./pages/dashboard/file-records";
 import Unauthorised from "/src/pages/unauthorised/unauthorised";
 import AdminHome from "./pages/admin/AdminHome"; // Adjust the path as needed
@@ -53,7 +53,6 @@ export const routes = [
         element: <FileRecords />,
         sidebar: true,
       },
-
       {
         icon: <UserCircleIcon {...icon} />,
         name: "Attendence",
@@ -61,6 +60,8 @@ export const routes = [
         element: <Attendence />,
         sidebar: true,
       },
+
+      
     ],
   },
   {
