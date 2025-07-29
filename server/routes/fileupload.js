@@ -39,7 +39,7 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     }
 });
 // // 📋 [GET] List all 
-router.get('/getall',  async (req, res) => {
+router.get('/getall',auth, async (req, res) => {
     try {
         const uploads = await Upload.find({ user: req.user.id });
         res.json(uploads);

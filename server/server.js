@@ -12,24 +12,35 @@ dotenv.config();
 const app = express();
 const PORT = 5000;
 
-// Use the correct env variable name (MONGO_URL from docker-compose)
-const mongoURI = process.env.MONGO_URL; // This would typically be for a local or Render Private Service MongoDB
-// const mongoURI = process.env.MONGODB_ATLAS_URI; // Use this if you put your Atlas URI in .env as MONGODB_ATLAS_URI
+const mongoURI = process.env.MONGODB_ATLAS_URI || process.env.MONGO_URL;
 
-// Mongoose client options for MongoDB Atlas Stable API version (from mongodbConnection.txt)
-const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
+if (!mongoURI) {
+    console.error('❌ No MongoDB connection string found in environment variables!');
+    process.exit(1);
+}
 
-mongoose.connect(mongoURI, clientOptions) // Use clientOptions for MongoDB Atlas connections
+// Options: Only use serverApi for Atlas
+const isAtlas = mongoURI.includes('mongodb+srv://');
+const clientOptions = isAtlas
+    ? { serverApi: { version: '1', strict: true, deprecationErrors: true } }
+    : {}; // Empty options for local/dev
+
+mongoose.connect(mongoURI, clientOptions)
     .then(() => {
-        console.log('✅ Connected to MongoDB!');
-        // Optional: Ping the deployment to confirm connection (as in mongodbConnection.txt)
-        // This is typically for initial connection verification, not for every app start
-        mongoose.connection.db.admin().command({ ping: 1 })
-            .then(() => console.log("Pinged your deployment. You successfully connected to MongoDB!"))
-            .catch(err => console.error("Ping command failed:", err));
+        console.log('✅ Connected to MongoDB:', isAtlas ? 'Atlas (production)' : 'Local/Docker (development)');
+        if (isAtlas) {
+            // Optional: Ping Atlas deployment
+            mongoose.connection.db.admin().command({ ping: 1 })
+                .then(() => console.log('🏓 Pinged MongoDB Atlas successfully!'))
+                .catch(err => console.warn('⚠️ Ping failed:', err));
+        }
     })
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+    .catch(err => {
+        console.error('❌ MongoDB connection error:', err);
+        process.exit(1);
+    });
 // --- End MongoDB Connection Setup ---
+
 // add all the routes here 
 app.use(express.json());
 // <--- ADD CORS CONFIGURATION HERE ---
@@ -55,6 +66,8 @@ app.use('/student', studentRoutes);
 app.use('/employee', EmployeeRoutes);
 app.use('/upload', UploadRoutes); // <--- ADD THIS LINE: Use the upload routes
 app.use('/admin', require('./routes/admin-route')); // <--- ADD THIS LINE: Use the admin routes
+
+
 
 
 app.listen(PORT, () => {
