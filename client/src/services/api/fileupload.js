@@ -32,6 +32,24 @@ const fileuploadService = {
             throw error; // Re-throw the error for further handling if needed
         }
     },
+    getCount: async () => {
+        try {
+            const response = await api.get(`${USER_BASE_PATH}count`);
+            return response.data; // Axios puts the actual data in .data
+        } catch (error) {
+            console.error('Error fetching file count', error);
+            throw error; // Re-throw the error for further handling if needed
+        }
+    },
+    getLastUpload: async () => {
+        try {
+            const response = await api.get(`${USER_BASE_PATH}lastupload`);
+            return response.data; // Axios puts the actual data in .data
+        } catch (error) {
+            console.error('Error fetching last upload', error);
+            throw error; // Re-throw the error for further handling if needed
+        }
+    },
     deleteFileRecord: async (id) => {
         try {
             const response = await api.delete(`${USER_BASE_PATH}/delete/${id}`);
