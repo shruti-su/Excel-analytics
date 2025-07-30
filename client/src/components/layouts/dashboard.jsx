@@ -19,7 +19,7 @@ export function Dashboard() {
 
   // Debugging: Check the routes array structure and content
   // console.log("Dashboard: `routes` prop:", routes);
- 
+
   return (
     <div className=" bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl">
       {/* Sidenav component should receive the full routes or filtered ones for navigation */}
@@ -33,7 +33,7 @@ export function Dashboard() {
         <div className="row-span-1 overflow-hidden">
           <DashboardNavbar />
           <Configurator />
-          <IconButton
+          {/* <IconButton
             size="lg"
             color="white"
             className="fixed z-40 rounded-full bottom-8 right-8 shadow-blue-gray-900/10"
@@ -41,7 +41,7 @@ export function Dashboard() {
             onClick={() => setOpenConfigurator(dispatch, true)}
           >
             <Cog6ToothIcon className="w-5 h-5" />
-          </IconButton>
+          </IconButton> */}
         </div>
         <div className="row-span-10 overflow-auto ">
           <Routes>

@@ -26,17 +26,22 @@ import {
   setOpenSidenav,
 } from "@/components/context";
 import { useAuth } from "@/components/auth/AuthContext"; // Adjust the import path as necessary
+import { useTheme } from "@/components/context/ThemeContext"; // Corrected import: only useTheme
+
+// Import ThemeToggle component
+import ThemeToggle from "@/components/ThemeToggle"; // Adjust path if necessary
 
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
-  const { logout } = useAuth(); // Destructure the login function from useAuth
+  const { logout } = useAuth(); // Destructure the logout function from useAuth
+  const { theme } = useTheme(); // Consume the theme from context (still available for other uses if needed)
 
   return (
     <Navbar
-      color={fixedNavbar ? "white" : "transparent"}
+      color={fixedNavbar ? "white" : "transparent"} // Material Tailwind's Navbar handles its own color based on props
       className={`rounded-xl transition-all ${
         fixedNavbar
           ? "sticky top-4 z-40 py-3 shadow-md shadow-blue-gray-500/5"
@@ -85,7 +90,6 @@ export function DashboardNavbar() {
           >
             <Bars3Icon strokeWidth={3} className="h-6 w-6 text-blue-gray-500" />
           </IconButton>
-
           <Button
             variant="text"
             color="blue-gray"
@@ -95,6 +99,10 @@ export function DashboardNavbar() {
             <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
             Log out
           </Button>
+
+          {/* Theme Toggle Button - Integrated cleanly into the navbar */}
+          <ThemeToggle />
+
           <IconButton
             variant="text"
             color="blue-gray"
@@ -102,7 +110,6 @@ export function DashboardNavbar() {
           >
             <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
           </IconButton>
-
           <Menu>
             <MenuHandler>
               <IconButton variant="text" color="blue-gray">

@@ -6,6 +6,7 @@ import { ThemeProvider } from "@material-tailwind/react";
 import { MaterialTailwindControllerProvider } from "@/components/context";
 
 import { PrimeReactProvider, PrimeReactContext } from "primereact/api";
+import { ThemeProvider as CustomThemeProvider } from "@/components/context/ThemeContext"; // Renamed to avoid conflict
 
 /* Core PrimeReact CSS */
 import "primereact/resources/themes/lara-light-indigo/theme.css";
@@ -62,14 +63,16 @@ import "primeicons/primeicons.css"; /* PrimeIcons (for icons used by PrimeReact 
 import "./index.css";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <PrimeReactProvider>
-      <BrowserRouter>
-        <ThemeProvider>
-          <MaterialTailwindControllerProvider>
-            <App />
-          </MaterialTailwindControllerProvider>
-        </ThemeProvider>
-      </BrowserRouter>
-    </PrimeReactProvider>
+    <CustomThemeProvider>
+      <PrimeReactProvider>
+        <BrowserRouter>
+          <ThemeProvider>
+            <MaterialTailwindControllerProvider>
+              <App />
+            </MaterialTailwindControllerProvider>
+          </ThemeProvider>
+        </BrowserRouter>
+      </PrimeReactProvider>
+    </CustomThemeProvider>
   </React.StrictMode>
 );

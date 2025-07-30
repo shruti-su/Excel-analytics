@@ -12,8 +12,9 @@ const getRecentUploads = (parsedData) => {
   const uploadsMap = new Map();
 
   parsedData.forEach((item, index) => {
-    const fileName = item.fileName || `uploaded_file_${index % 3 + 1}.xlsx`; // Fake filename
-    const uploadedAt = item.uploadedAt || new Date(Date.now() - index * 86400000); // Fake upload time
+    const fileName = item.fileName || `uploaded_file_${(index % 3) + 1}.xlsx`; // Fake filename
+    const uploadedAt =
+      item.uploadedAt || new Date(Date.now() - index * 86400000); // Fake upload time
 
     if (!uploadsMap.has(fileName)) {
       uploadsMap.set(fileName, uploadedAt);
@@ -104,7 +105,7 @@ function Home({ parsedData }) {
       </motion.div>
 
       {/* ✅ Dynamic Upload History */}
-      <div className="bg-white p-4 rounded-xl shadow border">
+      <div className="bg-white dark:bg-black dark:text-white p-4 rounded-xl shadow border">
         <Typography variant="h6" className="mb-2">
           Recent Uploads
         </Typography>
@@ -131,7 +132,8 @@ function Home({ parsedData }) {
       <Card className="bg-yellow-50 p-4 rounded-lg shadow text-yellow-900 border-l-4 border-yellow-400">
         <Typography variant="h6">Smart Insight</Typography>
         <Typography>
-          📌 Your sales dropped 12% this week compared to last. Check product trends.
+          📌 Your sales dropped 12% this week compared to last. Check product
+          trends.
         </Typography>
       </Card>
     </div>

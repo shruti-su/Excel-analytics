@@ -39,12 +39,36 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     }
 });
 // // 📋 [GET] List all 
-router.get('/getall',auth, async (req, res) => {
+router.get('/getall', auth, async (req, res) => {
     try {
         const uploads = await Upload.find({ user: req.user.id });
         res.json(uploads);
     } catch (err) {
         console.error('❌ Error fetching uploads:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// count of records
+router.get('/count', auth, async (req, res) => {
+    try {
+        const count = await Upload.countDocuments({ user: req.user.id });
+        res.status(200).json({ count: count });
+    } catch (err) {
+        console.error('❌ Error counting uploads:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/lastupload', auth, async (req, res) => {
+    try {
+        const lastUpload = await Upload.findOne({ user: req.user.id }).sort({ createdAt: -1 });
+        if (!lastUpload) {
+            return res.status(404).json({ error: 'No uploads found' });
+        }
+        res.status(200).json({ lastUpload: lastUpload });
+    } catch (err) {
+        console.error('❌ Error fetching last upload:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
