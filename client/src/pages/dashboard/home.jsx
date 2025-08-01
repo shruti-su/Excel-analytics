@@ -95,28 +95,6 @@ function Home() {
   }, [fetchData]);
 
 
-
-  if (loading) {
-    return (
-      <div className="p-6 text-center text-gray-700 bg-gradient-to-br from-purple-50 to-indigo-100 min-h-screen flex items-center justify-center">
-        <Typography variant="h5">Loading dashboard data...</Typography>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 text-center text-red-700 bg-gradient-to-br from-purple-50 to-indigo-100 min-h-screen flex items-center justify-center">
-        <Typography variant="h5">Error: {error}</Typography>
-        <button
-          onClick={fetchData}
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
   // Handle delete action
   const handleDelete = async (recordId) => {
     const confirmed = await showConfirm(

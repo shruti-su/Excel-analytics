@@ -13,6 +13,7 @@ import {
 } from "/src/components/context";
 import routes from "/src/router.jsx";
 
+
 export function Dashboard() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavType } = controller;
@@ -21,7 +22,7 @@ export function Dashboard() {
   // console.log("Dashboard: `routes` prop:", routes);
 
   return (
-    <div className=" bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl">
+    <div className=" rounded-3xl">
       {/* Sidenav component should receive the full routes or filtered ones for navigation */}
       <Sidenav
         routes={routes.filter((r) => r.layout === "dashboard")} // Pass only dashboard routes to Sidenav
