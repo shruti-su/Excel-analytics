@@ -10,6 +10,28 @@ export default withMT({
     "./node_modules/@material-tailwind/react/theme/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    colors: {
+      primary: {
+        DEFAULT: "#F6F5F2",
+        light: "#F6F5F2",
+        dark: "#222831",
+      },
+      secondary: {
+        DEFAULT: "#F0EBE3",
+        light: "#F0EBE3",
+        dark: "#393E46",
+      },
+      primarytext: {
+        DEFAULT: "#000000",
+        light: "#000000",
+        dark: "#ffffff",
+      },
+      secondarytext: {
+        DEFAULT: "#181C14",
+        light: "#181C14",
+        dark: "#ECDFCC",
+      },
+    },
     screens: {
       sm: "640px",
       // => @media (min-width: 640px) { ... }
