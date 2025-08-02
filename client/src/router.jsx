@@ -37,7 +37,7 @@ export const routes = [
         name: "Upload",
         path: "/upload",
         element: <Upload />,
-        sidebar: false,
+        sidebar: true,
       },
       {
         icon: <TableCellsIcon {...icon} />,
