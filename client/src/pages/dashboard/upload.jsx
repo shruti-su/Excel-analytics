@@ -4,14 +4,15 @@ import * as XLSX from "xlsx";
 import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
 import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
 import fileuploadService from "/src/services/api/fileupload.js";
+import { useTheme } from "@/components/context/ThemeContext"; // 👈 import theme
 
 function Upload() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [parsedData, setParsedData] = useState([]);
-  const [error, setError] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
   const { showSuccess, showError, showWarning } = sweetAlert();
   const navigate = useNavigate();
+  const { isDark } = useTheme(); // 👈 access dark mode
 
   const handleFileChange = (file) => {
     if (!file) return;
@@ -84,17 +85,21 @@ function Upload() {
   };
 
   return (
-    <div className="text-3xl font-bold text-center flex flex-col items-center justify-center w-full mt-32 ">
-      <h1 className="text-4xl font-extrabold font-mono tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-blue-700 to-blue-400 drop-shadow-lg mb-4 animate-fade-in-slow">
+    <div className="text-3xl font-bold text-center flex flex-col items-center justify-center w-full mt-32">
+      <h1 className="text-3xl font-bold text-blue-500 dark:text-blue-400 mb-4">
         Upload Excel File
       </h1>
-
       {/* Upload Section */}
       {!selectedFile && (
         <Card
-          className={`w-full max-w-[48rem] mx-auto mt-8 border-4 border-dotted bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 shadow-xl rounded-xl flex items-center justify-center text-center transition-colors duration-300 ${
-            isDragOver ? "border-blue-600 bg-blue-100" : "border-blue-400"
-          }`}
+          className={`w-full max-w-[48rem] mx-auto mt-8 border-4 border-dotted transition-colors duration-300
+          shadow-xl rounded-xl flex items-center justify-center text-center
+          ${isDark
+              ? `bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border-blue-600`
+              : `bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 border-blue-400`
+            }
+          ${isDragOver ? "border-blue-600" : ""}
+        `}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -103,7 +108,7 @@ function Upload() {
             <input
               type="file"
               accept=".xlsx, .xls, .csv"
-              className="file-input hidden file-input-bordered file-input-primary w-full max-w-xs"
+              className="hidden"
               id="file-upload"
               onChange={handleFileInputChange}
             />
@@ -123,10 +128,16 @@ function Upload() {
               Upload
             </Button>
 
-            <Typography className="mt-4 text-lg font-semibold text-blue-700">
+            <Typography
+              className={`mt-4 text-lg font-semibold ${isDark ? "text-blue-200" : "text-blue-700"
+                }`}
+            >
               Drag and drop your file here or
             </Typography>
-            <Typography className="text-sm text-gray-500 italic">
+            <Typography
+              className={`text-sm italic ${isDark ? "text-gray-300" : "text-gray-500"
+                }`}
+            >
               Supported formats: .xlsx, .xls, .csv
             </Typography>
           </CardBody>
@@ -135,18 +146,31 @@ function Upload() {
 
       {/* File Preview Section */}
       {selectedFile && (
-        <div className="w-full max-w-[48rem] mx-auto mt-6 p-6 bg-white rounded-xl shadow-lg flex flex-col items-center border border-blue-200">
-          <Typography className="text-lg font-semibold text-gray-800 mb-2">
-            Selected File: {selectedFile.name}
+        <div
+          className={`w-full max-w-[48rem] mx-auto mt-6 p-6 rounded-xl shadow-lg flex flex-col items-center border ${isDark
+            ? "bg-gray-800 border-gray-700"
+            : "bg-white border-blue-200"
+            }`}
+        >
+          <Typography
+            className={`text-md font-medium mb-4 text-center ${isDark ? "text-blue-300" : "text-blue-600"}`}
+          >
+            📄 <span className="font-semibold">Selected File:</span> {selectedFile.name}
           </Typography>
 
           {parsedData.length > 0 && (
             <div className="overflow-auto w-full mb-4">
-              <table className="min-w-full border border-gray-300">
+              <table className={`min-w-full border rounded-md overflow-hidden ${isDark ? "border-gray-700" : "border-blue-200"}`}>
                 <thead>
                   <tr>
                     {parsedData[0].map((header, idx) => (
-                      <th key={idx} className="border px-2 py-1 bg-blue-100 text-blue-800 font-bold">
+                      <th
+                        key={idx}
+                        className={`border px-2 py-1 font-bold ${isDark
+                          ? "bg-gray-700 text-blue-300 border-gray-600"
+                          : "bg-blue-100 text-blue-800"
+                          }`}
+                      >
                         {header}
                       </th>
                     ))}
@@ -154,25 +178,37 @@ function Upload() {
                 </thead>
                 <tbody>
                   {parsedData.slice(1).map((row, rowIdx) => (
-                    <tr key={rowIdx}>
+                    <tr
+                      key={rowIdx}
+                      className={`${isDark
+                        ? `${rowIdx % 2 === 0 ? "bg-gray-800" : "bg-gray-700"} hover:bg-gray-600`
+                        : `${rowIdx % 2 === 0 ? "bg-white" : "bg-blue-50"} hover:bg-blue-100`
+                        }`}
+                    >
                       {row.map((cell, cellIdx) => (
-                        <td key={cellIdx} className="border px-2 py-1 text-gray-700">
+                        <td
+                          key={cellIdx}
+                          className={`border px-2 py-1 ${isDark
+                            ? "text-gray-200 border-gray-600"
+                            : "text-gray-700 border-gray-300"
+                            }`}
+                        >
                           {cell}
                         </td>
                       ))}
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
           )}
 
           {/* Buttons Section */}
           <div className="flex gap-4 mt-2">
-            {/* Cancel Button */}
             <Button
               color="red"
-              className="px-6 py-2 font-bold rounded-full"
+              className="px-5 py-2 font-semibold shadow-sm rounded-xl"
               onClick={() => {
                 setSelectedFile(null);
                 setParsedData([]);
@@ -180,11 +216,9 @@ function Upload() {
             >
               Cancel
             </Button>
-
-            {/* Analyze Button */}
             <Button
               color="blue"
-              className="px-6 py-2 font-bold rounded-full"
+              className="px-5 py-2 font-semibold shadow-sm rounded-xl"
               onClick={() => {
                 showSuccess("Data analyzed successfully!");
                 navigate("/dashboard/charts", { state: { parsedData } });
@@ -192,11 +226,9 @@ function Upload() {
             >
               Analyze
             </Button>
-
-            {/* Submit Button */}
             <Button
               color="green"
-              className="px-6 py-2 font-bold rounded-full"
+              className="px-5 py-2 font-semibold shadow-sm rounded-xl"
               onClick={async () => {
                 await handleUpload();
                 setParsedData([]);

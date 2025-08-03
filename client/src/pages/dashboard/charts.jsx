@@ -630,7 +630,7 @@ export const Charts = () => {
   }, []); // Empty dependency array as it only uses state setters
 
   return (
-    <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl shadow-2xl border-indigo-200 min-h-screen">
+    <div className="p-6 rounded-3xl shadow-2xl border-indigo-200 min-h-screen">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-4xl font-extrabold text-indigo-700 drop-shadow-lg tracking-wide flex items-center gap-2">
           <span className="inline-block bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-white px-4 py-2 rounded-full shadow">

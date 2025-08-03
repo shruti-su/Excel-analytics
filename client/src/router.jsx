@@ -6,16 +6,15 @@ import {
   ServerStackIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
-import  Home  from "/src/pages/dashboard/home";
+import Home from "/src/pages/dashboard/home";
 import { SignIn, SignUp, Forgotpassword } from "/src/pages/auth";
 import Attendence from "/src/pages/attendence";
 import Upload from "./pages/dashboard/upload";
-import  {Charts}  from "./pages/dashboard";
+import { Charts } from "./pages/dashboard";
 import FileRecords from "./pages/dashboard/file-records";
 import Unauthorised from "/src/pages/unauthorised/unauthorised";
 import AdminHome from "./pages/admin/AdminHome"; // Adjust the path as needed
 import UserManagement from "./pages/admin/user-management"; // Adjust the path as needed
-
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -33,7 +32,20 @@ export const routes = [
         sidebar: true,
       },
       {
-        icon: <HomeIcon {...icon} />,
+        icon: (
+          <>
+            <svg
+              className="w-5 h-5 "
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.71 7.71L11 5.41V15a1 1 0 0 0 2 0V5.41l2.29 2.3a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42l-4-4a1 1 0 0 0-.33-.21a1 1 0 0 0-.76 0a1 1 0 0 0-.33.21l-4 4a1 1 0 1 0 1.42 1.42ZM21 12a1 1 0 0 0-1 1v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6a1 1 0 0 0-2 0v6a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-6a1 1 0 0 0-1-1Z"
+                fill="currentColor"
+              />
+            </svg>
+          </>
+        ),
         name: "Upload",
         path: "/upload",
         element: <Upload />,
@@ -60,8 +72,6 @@ export const routes = [
         element: <Attendence />,
         sidebar: true,
       },
-
-      
     ],
   },
   {

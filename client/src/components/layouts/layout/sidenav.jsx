@@ -94,9 +94,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
         </div>
       </div>
       <div>
-        <span className="px-5 text-sm font-bold dark:text-primarytext-dark text-primarytext">
+        {/* <span className="px-5 text-sm font-bold dark:text-primarytext-dark text-primarytext">
           Excel Analytics {currentPage}
-        </span>
+        </span> */}
       </div>
     </aside>
   );

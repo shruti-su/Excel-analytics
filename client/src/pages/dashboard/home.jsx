@@ -25,6 +25,8 @@ import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
 import { Menu } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { useTheme } from "@/components/context/ThemeContext";
+import TiltedCard from "@/components/Tilted-card";
 
 ChartJS.register(
   CategoryScale,
@@ -50,6 +52,8 @@ const getRecentUploads = async () => {
 
 function Home() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+
   const { showSuccess, showError, showWarning, showConfirm } = sweetAlert();
 
   const [totalFilesUploaded, setTotalFilesUploaded] = useState(0);
@@ -155,15 +159,53 @@ function Home() {
     file.fileName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const isDark = theme === "dark";
+
   const sampleChartData = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
     datasets: [
       {
         label: "Uploads",
         data: [2, 4, 3, 6, 5],
-        backgroundColor: "rgba(99, 102, 241, 0.5)",
+        backgroundColor: isDark
+          ? "#0d2459"
+          : "#102f75", // indigo-600
+        borderColor: isDark ? "#F6F5F2" : "#4f46e5", // primary or indigo-600
+        pointBackgroundColor: isDark ? "#222831" : "#F6F5F2", // primary-dark or primary
+        pointBorderColor: isDark ? "#F6F5F2" : "#222831",
       },
     ],
+  };
+
+  const chartOptions = {
+    plugins: {
+      legend: {
+        labels: {
+          color: isDark ? "#F6F5F2" : "#222831", // legend text color
+        },
+      },
+      title: {
+        color: isDark ? "#F6F5F2" : "#222831",
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+        },
+        ticks: {
+          color: isDark ? "#F6F5F2" : "#222831",
+        },
+      },
+      y: {
+        grid: {
+          color: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+        },
+        ticks: {
+          color: isDark ? "#F6F5F2" : "#222831",
+        },
+      },
+    },
   };
 
   return (
@@ -172,7 +214,7 @@ function Home() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="p-6 border border-indigo-200 shadow-lg bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-gray-800 dark:to-gray-700 rounded-xl dark:border-gray-600"
+        className="p-6 border border-indigo-200 shadow-lg bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-gray-900 dark:to-gray-800 rounded-xl dark:border-gray-600"
       >
         <Typography
           variant="h4"
@@ -187,19 +229,22 @@ function Home() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-4 text-white bg-indigo-600 shadow-md rounded-xl">
+        <Card className="p-4 text-white bg-indigo-600 shadow-md rounded-xl transition duration-300 ease-in-out transform hover:scale-105 hover:rotate-x-5 hover:rotate-y-5">
           <Typography variant="h6">Files Uploaded</Typography>
           <Typography variant="h3">{totalFilesUploaded}</Typography>
         </Card>
-        <Card className="p-4 text-white bg-blue-600 shadow-md rounded-xl">
+
+        <Card className="p-4 text-white bg-blue-600 shadow-md rounded-xl transition duration-300 ease-in-out transform hover:scale-105 hover:rotate-x-5 hover:rotate-y-5">
           <Typography variant="h6">Data Rows</Typography>
           <Typography variant="h3">{totalRowsImported}</Typography>
         </Card>
-        <Card className="p-4 text-white bg-green-600 shadow-md rounded-xl">
+
+        <Card className="p-4 text-white bg-green-600 shadow-md rounded-xl transition duration-300 ease-in-out transform hover:scale-105 hover:rotate-x-5 hover:rotate-y-5">
           <Typography variant="h6">Charts Created</Typography>
           <Typography variant="h3">{chartsCreated}</Typography>
         </Card>
-        <Card className="p-4 text-white bg-yellow-600 shadow-md rounded-xl">
+
+        <Card className="p-4 text-white bg-yellow-600 shadow-md rounded-xl transition duration-300 ease-in-out transform hover:scale-105 hover:rotate-x-5 hover:rotate-y-5">
           <Typography variant="h6">Last Upload</Typography>
           <Typography variant="h5">{lastUploadDate}</Typography>
         </Card>
@@ -207,17 +252,17 @@ function Home() {
 
       {/* Chart Section */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card className="p-6 shadow-md dark:bg-gray-800">
+        <Card className="p-6 shadow-md dark:bg-gray-900">
           <Typography variant="h6" className="dark:text-white">
             Top Visualizations
           </Typography>
-          <Line data={sampleChartData} />
+          <Line data={sampleChartData} options={chartOptions} />
         </Card>
-        <Card className="p-6 shadow-md dark:bg-gray-800">
+        <Card className="p-6 shadow-md dark:bg-gray-900">
           <Typography variant="h6" className="dark:text-white">
             Recent Activity
           </Typography>
-          <Bar data={sampleChartData} />
+          <Bar data={sampleChartData} options={chartOptions} />
         </Card>
       </div>
 
@@ -260,7 +305,7 @@ function Home() {
                 filteredRecentUploads.map((file, index) => (
                   <tr
                     key={file._id || index}
-                    className="border-b dark:border-gray-600"
+                    className="border-b dark:border-gray-600 dark:text-white"
                   >
                     <td className="p-2">{file.fileName}</td>
                     <td className="p-2">
