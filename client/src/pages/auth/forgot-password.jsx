@@ -9,8 +9,10 @@ import { Password } from "primereact/password";
 import { Stepper } from "primereact/stepper";
 import { StepperPanel } from "primereact/stepperpanel";
 import { sweetAlert } from "../../components/SweetAlert/SweetAlert";
+import { useNavigate } from "react-router-dom";
 
 export function Forgotpassword() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [otp, setOtp] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -116,10 +118,22 @@ export function Forgotpassword() {
             initial="hidden"
             animate="visible"
         >
-            <motion.div
-                variants={itemVariants}
-                className="w-full max-w-xl lg:max-w-2xl rounded-2xl overflow-hidden shadow-2xl shadow-blue-200 bg-white p-6 md:p-10"
-            >
+            <div className="relative w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg">
+                {/* ✅ Top-Right Back Button */}
+                <motion.div
+                    variants={itemVariants}
+                    className="absolute top-4 right-4"
+                >
+                    <Button
+                        size="sm"
+                        className="bg-indigo-700 text-white px-4 py-1 text-xl"
+                        onClick={() => navigate("/auth/sign-in")}
+                    >
+                        Back
+                    </Button>
+                </motion.div>
+
+                {/* ✅ Title + Subtitle */}
                 <div className="text-center mb-8">
                     <motion.div variants={itemVariants}>
                         <Typography variant="h2" className="mb-2 font-extrabold text-gray-800">
@@ -132,6 +146,7 @@ export function Forgotpassword() {
                         </Typography>
                     </motion.div>
                 </div>
+
                 <Stepper ref={stepperRef} style={{ flexBasis: "50rem" }} orientation="vertical">
                     <StepperPanel header="Enter Email">
                         <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
@@ -172,6 +187,7 @@ export function Forgotpassword() {
                                     {loading ? "Sending..." : "Send OTP"}
                                 </Button>
                             </motion.div>
+                            
                         </form>
                     </StepperPanel>
 
@@ -253,8 +269,8 @@ export function Forgotpassword() {
                         </form>
                     </StepperPanel>
                 </Stepper>
-            </motion.div>
-        </motion.section>
+            </div>
+        </motion.section >
     );
 }
 

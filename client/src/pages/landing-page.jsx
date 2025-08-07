@@ -17,21 +17,45 @@ import {
 const testimonials = [
   {
     name: "Shruti D.",
-    feedback: "Excel Analytics helped me visualize data instantly!",
+    feedback:
+      "Excel Analytics made data storytelling so intuitive! I love how fast I can generate insights.",
     position: "Frontend Developer",
     image: "https://randomuser.me/api/portraits/women/75.jpg",
   },
   {
     name: "Sumit D.",
-    feedback: "The upload process is seamless and lightning-fast.",
+    feedback:
+      "Uploading Excel files is a breeze, and the visualizations are clean and interactive. Saved me hours!",
     position: "Data Analyst",
     image: "https://randomuser.me/api/portraits/men/32.jpg",
   },
   {
     name: "Pooja R.",
-    feedback: "Dark mode and interactive charts are a game changer!",
+    feedback:
+      "The dark mode and chart customizations are so smooth. It’s like the tool was made for analysts.",
     position: "Business Analyst",
     image: "https://randomuser.me/api/portraits/women/44.jpg",
+  },
+  {
+    name: "Arjun M.",
+    feedback:
+      "What impressed me most is the accuracy in chart rendering and file parsing — flawless experience.",
+    position: "Product Manager",
+    image: "https://randomuser.me/api/portraits/men/55.jpg",
+  },
+  {
+    name: "Nisha T.",
+    feedback:
+      "The UI is minimal, elegant, and effective. Excel Analytics makes me enjoy data cleaning!",
+    position: "Software Engineer",
+    image: "https://randomuser.me/api/portraits/women/65.jpg",
+  },
+  {
+    name: "Karan V.",
+    feedback:
+      "From upload to analysis, everything just flows. Great for non-tech users too!",
+    position: "Operations Lead",
+    image: "https://randomuser.me/api/portraits/men/41.jpg",
   },
 ];
 
@@ -300,9 +324,10 @@ export default function LandingPage() {
         id="testimonials"
         className="px-6 py-24 bg-indigo-50 dark:bg-gray-900"
       >
-        <h2 className="mb-12 text-3xl font-semibold text-center">
+        <h2 className="mb-12 text-3xl font-semibold text-center text-gray-900 dark:text-white">
           What Our Users Say
         </h2>
+
         <Carousel
           value={testimonials}
           itemTemplate={(item) => (
@@ -312,14 +337,17 @@ export default function LandingPage() {
                 alt={item.name}
                 className="w-16 h-16 mx-auto mb-4 rounded-full"
               />
-              <p className="italic">“{item.feedback}”</p>
-              <h4 className="mt-4 font-semibold">- {item.name}</h4>
-              <span className="text-sm text-gray-500">{item.position}</span>
+              <p className="italic text-gray-700 dark:text-gray-300">“{item.feedback}”</p>
+              <h4 className="mt-4 font-semibold text-gray-900 dark:text-white">- {item.name}</h4>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{item.position}</span>
             </div>
           )}
           numVisible={1}
+          numScroll={1}
           circular
-          autoplayInterval={4000}
+          autoplayInterval={2000}
+          showIndicators={true}
+          showNavigators={false} // optional: hide arrows for clean auto-slide
         />
       </section>
 
@@ -376,6 +404,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   );
 }

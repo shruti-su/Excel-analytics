@@ -8,13 +8,14 @@ import {
 } from "@heroicons/react/24/solid";
 import Home from "/src/pages/dashboard/home";
 import { SignIn, SignUp, Forgotpassword } from "/src/pages/auth";
-import Attendence from "/src/pages/attendence";
 import Upload from "./pages/dashboard/upload";
 import { Charts } from "./pages/dashboard";
 import FileRecords from "./pages/dashboard/file-records";
 import Unauthorised from "/src/pages/unauthorised/unauthorised";
 import AdminHome from "./pages/admin/AdminHome"; // Adjust the path as needed
 import UserManagement from "./pages/admin/user-management"; // Adjust the path as needed
+import ProfilePage from "/src/pages/profile-page"; // Adjust the path as needed
+
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -65,13 +66,7 @@ export const routes = [
         element: <FileRecords />,
         sidebar: true,
       },
-      {
-        icon: <UserCircleIcon {...icon} />,
-        name: "Attendence",
-        path: "/Attendence",
-        element: <Attendence />,
-        sidebar: true,
-      },
+      
     ],
   },
   {
@@ -105,6 +100,19 @@ export const routes = [
       },
     ],
   },
+  {
+    title: "Profile Page",
+    layout: "profile",
+    pages: [
+      {
+        icon: <InformationCircleIcon {...icon} />,
+        name: "Profile Page",
+        path: "/",
+        element: <ProfilePage />,
+      },
+    ],
+  },
+
   {
     title: "auth pages",
     layout: "auth",

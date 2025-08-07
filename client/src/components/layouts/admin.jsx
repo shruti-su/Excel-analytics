@@ -24,7 +24,7 @@ export function AdminPanel() {
   const adminRoutes = routes.find((r) => r.layout === "admin")?.pages || [];
 
   return (
-    <div className="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-3xl min-h-screen">
+    <div className="bg-secondary dark:bg-secondary-dark">
       {/* Sidebar for admin routes */}
       <Sidenav
         routes={[{ layout: "admin", pages: adminRoutes }]}
@@ -36,7 +36,7 @@ export function AdminPanel() {
       />
 
       {/* Main content layout */}
-      <div className="p-4 xl:ml-80 min-h-screen grid grid-rows-12">
+      <div className="p-4 xl:ml-56 min-h-screen grid grid-rows-12">
         {/* Top navbar and floating config button */}
         <div className="row-span-1">
           <DashboardNavbar />
