@@ -16,7 +16,6 @@ import AdminHome from "./pages/admin/AdminHome"; // Adjust the path as needed
 import UserManagement from "./pages/admin/user-management"; // Adjust the path as needed
 import ProfilePage from "/src/pages/profile-page"; // Adjust the path as needed
 
-
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -66,7 +65,12 @@ export const routes = [
         element: <FileRecords />,
         sidebar: true,
       },
-      
+      {
+        icon: <InformationCircleIcon {...icon} />,
+        name: "Profile Page",
+        path: "/profile",
+        element: <ProfilePage />,
+      },
     ],
   },
   {
@@ -86,6 +90,12 @@ export const routes = [
         element: <UserManagement />,
         sidebar: true,
       },
+      {
+        icon: <InformationCircleIcon {...icon} />,
+        name: "Profile Page",
+        path: "/profile",
+        element: <ProfilePage />,
+      },
     ],
   },
   {
@@ -97,18 +107,6 @@ export const routes = [
         name: "Unauthorised",
         path: "/",
         element: <Unauthorised />,
-      },
-    ],
-  },
-  {
-    title: "Profile Page",
-    layout: "profile",
-    pages: [
-      {
-        icon: <InformationCircleIcon {...icon} />,
-        name: "Profile Page",
-        path: "/",
-        element: <ProfilePage />,
       },
     ],
   },

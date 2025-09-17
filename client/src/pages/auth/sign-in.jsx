@@ -11,9 +11,9 @@ import { useAuth } from "@/components/auth/AuthContext"; // Adjust the import pa
 import AuthService from "@/services/api/auth"; // Import the AuthService for API calls
 import { signInWithPopup, auth, provider } from "@/firebase";
 import { motion } from "framer-motion"; // Import Framer Motion
-import { InputText } from 'primereact/inputtext';
-import { FloatLabel } from 'primereact/floatlabel';
-import { Password } from 'primereact/password';
+import { InputText } from "primereact/inputtext";
+import { FloatLabel } from "primereact/floatlabel";
+import { Password } from "primereact/password";
 
 export function SignIn() {
   const { login, userRole } = useAuth(); // Destructure the login function from useAuth
@@ -62,8 +62,8 @@ export function SignIn() {
       const response = await AuthService.loginUser({ email, password });
 
       // Check simulated credentials
-      if (response.msg === "Logged in successfully!") {
-        login(response.token); // Call the login function from AuthContext to update global state
+      if (response && response.token) {
+        login(response); // Call the login function from AuthContext with the response object
         // 👉 Redirect based on role
         const role = userRole() || "user"; // fallback to 'user' if undefined
         if (role === "admin") {
@@ -73,14 +73,16 @@ export function SignIn() {
         }
       } else {
         // If simulated credentials don't match, set an error
-        setError("Invalid email or password. Please try again.");
+        setError(
+          response.msg || "Invalid email or password. Please try again."
+        );
       }
     } catch (err) {
       // Catch any network errors or issues with the API call
       setError(
         err.response?.data?.msg ||
-        err.response?.data?.error ||
-        "An error occurred during sign-in. Please try again."
+          err.response?.data?.error ||
+          "An error occurred during sign-in. Please try again."
       );
       console.error(err);
     }
@@ -94,8 +96,9 @@ export function SignIn() {
       await AuthService.googleLogin({
         email: user.email,
         name: user.displayName,
+        profilePicture: user.photoURL,
       }).then((response) => {
-        login(response.token);
+        login(response);
         const role = userRole() || "user"; // fallback to 'user' if undefined
         if (role === "admin") {
           navigate("/admin/home");
@@ -103,7 +106,6 @@ export function SignIn() {
           navigate("/dashboard/home");
         }
       });
-
     } catch (error) {
       console.error("Login error:", error);
     }
@@ -120,7 +122,6 @@ export function SignIn() {
         variants={itemVariants}
         className="w-full max-w-md lg:max-w-lg rounded-xl overflow-hidden shadow-2xl shadow-blue-200" // Main container for image and form
       >
-
         <div className="p-6 md:p-8 bg-white rounded-b-xl">
           {" "}
           {/* Form container */}
@@ -213,7 +214,11 @@ export function SignIn() {
                   variant="small"
                   className="font-medium text-gray-900"
                 >
-                  <a href="#" className="text-indigo-600 hover:text-indigo-800" onClick={() => navigate("/auth/forgot-password")}>
+                  <a
+                    href="#"
+                    className="text-indigo-600 hover:text-indigo-800"
+                    onClick={() => navigate("/auth/forgot-password")}
+                  >
                     Forgot Password
                   </a>
                 </Typography>

@@ -15,6 +15,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute"; // Import your Pr
 import General from "./pages/general";
 import LandingPage from "./pages/landing-page";
 import PageNotFound from "./pages/page-not-found";
+import ProfilePage from "./pages/profile-page";
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
       <AuthProvider>
         <Routes>
           {/* <AuthProvider> */}
-          <Route path="*" element={<PageNotFound/>} />
+          <Route path="*" element={<PageNotFound />} />
           <Route path="/" element={<LandingPage />} />
           <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
             <Route path="/dashboard/*" element={<Dashboard />} />
@@ -31,6 +32,7 @@ function App() {
             <Route path="/admin/*" element={<AdminPanel />} />
           </Route>
           <Route path="/unauthorised" element={<Unauthorised />} />
+          <Route path="/profile/profile" element={<ProfilePage />} />
           <Route path="/auth/*" element={<Auth />} />
           <Route path="/Attendance" element={<Attendence />} />
           {/* <Route path="*" element={<Na0vigate to="/Attendance" replace />} /> */}

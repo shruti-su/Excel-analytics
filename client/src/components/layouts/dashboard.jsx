@@ -50,6 +50,7 @@ export function Dashboard() {
               }
               return null; // Don't render anything for non-dashboard layouts
             })}
+
             {/* <Route path="/" element={<Navigate to="/home" replace />} /> */}
             {/* <Route path="*" element={<p>Dashboard Page Not Found (404)</p>} /> */}
           </Routes>

@@ -107,7 +107,7 @@ export function DashboardNavbar() {
           {/* Theme Toggle Button - Integrated cleanly into the navbar */}
           <ThemeToggle />
 
-          <IconButton
+          {/* <IconButton
             variant="text"
             color="blue-gray"
             className="grid xl:hidden"
@@ -198,7 +198,7 @@ export function DashboardNavbar() {
             onClick={() => setOpenConfigurator(dispatch, true)}
           >
             <Cog6ToothIcon className="w-5 h-5 text-blue-gray-500" />
-          </IconButton>
+          </IconButton> */}
         </div>
       </div>
     </Navbar>

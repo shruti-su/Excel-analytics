@@ -13,37 +13,28 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("token"); // Or get your token
     if (storedToken) {
       try {
-        const base64 = storedToken
-          .split(".")[1]
-          .replace(/-/g, "+")
-          .replace(/_/g, "/");
-        const json = decodeURIComponent(
-          atob(base64)
-            .split("")
-            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-            .join("")
-        );
+        const decodedUser = jwtDecode(storedToken);
         const currentTime = Date.now() / 1000;
-        if (JSON.parse(json).exp < currentTime) {
+        if (decodedUser.exp < currentTime) {
           console.error("Token has expired");
           localStorage.removeItem("token");
+          setUser(null);
+        } else {
+          setUser(decodedUser.user);
         }
-
-        const parsedToken = JSON.parse(storedToken);
-        // You might want to validate the token with your backend here
-        // For simplicity, we'll just set the user
-        setUser(parsedToken);
       } catch (e) {
         console.error("Failed to parse token from localStorage", e);
         localStorage.removeItem("token"); // Clear corrupted data
+        setUser(null);
       }
     }
     setLoading(false); // Finished checking
   }, []);
 
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("token", JSON.stringify(userData)); // Store user data/token
+    const decodedUser = jwtDecode(userData.token);
+    setUser(decodedUser.user);
+    localStorage.setItem("token", userData.token); // Store only the token string
   };
 
   const logout = () => {
@@ -51,14 +42,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token"); // Clear stored data
   };
   const userRole = () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        return decoded.user.role;
-      } catch (e) {
-        return null;
-      }
+    if (user) {
+      return user.role;
     }
     return null;
   };

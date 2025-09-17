@@ -44,6 +44,7 @@ exports.login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role, // Include role in the payload
+                profilePicture: user.profilePicture,
             },
         };
         user.lastLogin = new Date(); // Update last login time
@@ -105,6 +106,7 @@ exports.signup = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: "user", // Include role in the payload
+                profilePicture: user.profilePicture,
             },
         };
         try {
@@ -126,20 +128,28 @@ exports.signup = async (req, res) => {
 };
 
 exports.googleLogin = async (req, res) => {
-    const { email, name } = req.body;
+    const { email, name, profilePicture } = req.body;
 
     try {
         // Check if user already exists
         let user = await User.findOne({ email });
         if (user) { // If user exists, create JWT and return it
+            // Optionally update name and picture on every Google login
+            user.name = name;
+            user.profilePicture = profilePicture;
+            user.lastLogin = new Date();
+            await user.save();
+
             const payload = {
                 user: {
                     id: user.id,
                     name: user.name,
                     email: user.email,
                     role: user.role, // Include role in the payload
+                    profilePicture: user.profilePicture,
                 },
             };
+
             const token = jwt.sign(
                 payload,
                 process.env.JWT_SECRET,
@@ -153,7 +163,8 @@ exports.googleLogin = async (req, res) => {
             email,
             password: await bcrypt.hash('password', await bcrypt.genSalt(10)), // Placeholder password, not used for Google login
             role: 'user', // Default role for new users
-            lastLogin: new Date() // Set last login time
+            lastLogin: new Date(), // Set last login time
+            profilePicture: profilePicture,
         });
         await user.save();
         // Create JWT for the new user
@@ -163,8 +174,7 @@ exports.googleLogin = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role, // Include role in the payload
-                lastLogin: new Date() // Set last login time
-
+                profilePicture: user.profilePicture,
             },
         };
         const token = jwt.sign(

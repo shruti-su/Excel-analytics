@@ -1,22 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Link, NavLink } from "react-router-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import {
-  Avatar,
-  Button,
-  IconButton,
-  Typography,
-} from "@material-tailwind/react";
+import { Button, IconButton, Typography } from "@material-tailwind/react";
 import {
   useMaterialTailwindController,
   setOpenSidenav,
 } from "@/components/context";
+import { useAuth } from "@/components/auth/AuthContext";
 
 export function Sidenav({ brandImg, brandName, routes }) {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavColor, sidenavType, openSidenav } = controller;
-  const [currentPage, setCurrentPage] = useState(""); // Track active page
+  const { user } = useAuth();
+  console.log(user);
 
   return (
     <aside
@@ -64,31 +61,26 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 .map(({ icon, name, path }) => (
                   <li key={name}>
                     <NavLink to={`/${layout}${path}`}>
-                      {({ isActive }) => {
-                        if (isActive && currentPage !== name) {
-                          setCurrentPage(name);
-                        }
-                        return (
-                          <Button
-                            variant={isActive ? "gradient" : "text"}
-                            color={isActive ? "gray" : "gray"} // Use a valid color prop
-                            className={`flex items-center gap-4 px-4 capitalize ${
-                              isActive
-                                ? "bg-secondary dark:bg-secondary-dark text-gray-200"
-                                : "text-gray-900 dark:text-gray-200"
-                            }`}
-                            fullWidth
+                      {({ isActive }) => (
+                        <Button
+                          variant={isActive ? "gradient" : "text"}
+                          color={isActive ? "gray" : "gray"} // Use a valid color prop
+                          className={`flex items-center gap-4 px-4 capitalize ${
+                            isActive
+                              ? "bg-secondary dark:bg-secondary-dark text-gray-200"
+                              : "text-gray-900 dark:text-gray-200"
+                          }`}
+                          fullWidth
+                        >
+                          {icon}
+                          <Typography
+                            color="inherit"
+                            className="font-medium capitalize"
                           >
-                            {icon}
-                            <Typography
-                              color="inherit"
-                              className="font-medium capitalize"
-                            >
-                              {name}
-                            </Typography>
-                          </Button>
-                        );
-                      }}
+                            {name}
+                          </Typography>
+                        </Button>
+                      )}
                     </NavLink>
                   </li>
                 ))}
@@ -96,10 +88,74 @@ export function Sidenav({ brandImg, brandName, routes }) {
           ))}
         </div>
       </div>
-      <div>
-        {/* <span className="px-5 text-sm font-bold dark:text-primarytext-dark text-primarytext">
-          Excel Analytics {currentPage}
-        </span> */}
+      <div className="p-4 border-t border-gray-700">
+        {user.role === "admin" ? (
+          <Link to="/admin/profile">
+            <div className="flex items-center gap-4">
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.name}
+                  className="relative inline-block h-9 w-9 rounded-full object-cover object-center"
+                />
+              ) : (
+                <div className="relative inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-purple-600 to-indigo-500">
+                  <span className="font-semibold text-white">
+                    {user.name?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div>
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-black dark:text-white"
+                >
+                  {user.name}
+                </Typography>
+
+                <Typography
+                  variant="small"
+                  className="font-normal text-black dark:text-gray-300"
+                >
+                  View Profile
+                </Typography>
+              </div>
+            </div>
+          </Link>
+        ) : (
+          <Link to="/dashboard/profile">
+            <div className="flex items-center gap-4">
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.name}
+                  className="relative inline-block h-9 w-9 rounded-full object-cover object-center"
+                />
+              ) : (
+                <div className="relative inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-purple-600 to-indigo-500">
+                  <span className="font-semibold text-white">
+                    {user.name?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div>
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-black dark:text-white"
+                >
+                  {user.name}
+                </Typography>
+
+                <Typography
+                  variant="small"
+                  className="font-normal text-black dark:text-gray-300"
+                >
+                  View Profile
+                </Typography>
+              </div>
+            </div>
+          </Link>
+        )}
       </div>
     </aside>
   );

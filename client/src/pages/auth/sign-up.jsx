@@ -1,18 +1,13 @@
 import React, { useState } from "react";
-import {
-  Input,
-  Checkbox,
-  Button,
-  Typography,
-} from "@material-tailwind/react";
+import { Input, Checkbox, Button, Typography } from "@material-tailwind/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthContext";
 import AuthService from "@/services/api/auth";
 import { signInWithPopup, auth, provider } from "@/firebase";
 import { motion } from "framer-motion";
-import { InputText } from 'primereact/inputtext';
-import { FloatLabel } from 'primereact/floatlabel';
-import { Password } from 'primereact/password';
+import { InputText } from "primereact/inputtext";
+import { FloatLabel } from "primereact/floatlabel";
+import { Password } from "primereact/password";
 
 export function SignUp() {
   const { login } = useAuth();
@@ -57,7 +52,7 @@ export function SignUp() {
         email: user.email,
         name: user.displayName,
       });
-      login(response.token);
+      login(response);
       navigate("/dashboard/home");
     } catch (error) {
       console.error("Login error:", error);
@@ -87,7 +82,7 @@ export function SignUp() {
         setError(response.error || response.warning || "Signup failed");
       } else {
         setSuccess("Registration successful! Please sign in.");
-        login(response.token);
+        login(response);
         navigate("/dashboard/home");
       }
     } catch (err) {
@@ -108,12 +103,19 @@ export function SignUp() {
       >
         <div className="text-center mb-8">
           <motion.div variants={itemVariants}>
-            <Typography variant="h2" className="mb-2 font-extrabold text-gray-800">
+            <Typography
+              variant="h2"
+              className="mb-2 font-extrabold text-gray-800"
+            >
               Create an Account
             </Typography>
           </motion.div>
           <motion.div variants={itemVariants}>
-            <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal text-gray-600">
+            <Typography
+              variant="paragraph"
+              color="blue-gray"
+              className="text-lg font-normal text-gray-600"
+            >
               Enter your details to register.
             </Typography>
           </motion.div>
@@ -176,14 +178,22 @@ export function SignUp() {
 
           {error && (
             <motion.div variants={itemVariants}>
-              <Typography variant="small" color="red" className="mb-4 text-center font-medium">
+              <Typography
+                variant="small"
+                color="red"
+                className="mb-4 text-center font-medium"
+              >
                 {error}
               </Typography>
             </motion.div>
           )}
           {success && (
             <motion.div variants={itemVariants}>
-              <Typography variant="small" color="green" className="mb-4 text-center font-medium">
+              <Typography
+                variant="small"
+                color="green"
+                className="mb-4 text-center font-medium"
+              >
                 {success}
               </Typography>
             </motion.div>
@@ -192,9 +202,18 @@ export function SignUp() {
           <motion.div variants={itemVariants}>
             <Checkbox
               label={
-                <Typography variant="small" color="gray" className="flex items-center font-medium text-gray-700">
+                <Typography
+                  variant="small"
+                  color="gray"
+                  className="flex items-center font-medium text-gray-700"
+                >
                   I agree the&nbsp;
-                  <a href="#" className="text-indigo-600 underline hover:text-indigo-800">Terms and Conditions</a>
+                  <a
+                    href="#"
+                    className="text-indigo-600 underline hover:text-indigo-800"
+                  >
+                    Terms and Conditions
+                  </a>
                 </Typography>
               }
               containerProps={{ className: "-ml-2.5" }}
@@ -260,9 +279,15 @@ export function SignUp() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Typography variant="paragraph" className="mt-4 font-medium text-center text-blue-gray-500">
+            <Typography
+              variant="paragraph"
+              className="mt-4 font-medium text-center text-blue-gray-500"
+            >
               Already have an account?
-              <Link to="/auth/sign-in" className="ml-1 text-indigo-600 hover:text-indigo-800">
+              <Link
+                to="/auth/sign-in"
+                className="ml-1 text-indigo-600 hover:text-indigo-800"
+              >
                 Sign in
               </Link>
             </Typography>
