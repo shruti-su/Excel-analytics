@@ -13,14 +13,16 @@ const fileuploadService = {
             for (let pair of formData.entries()) {
                 console.log(pair[0], pair[1]);
             }
-            const response = await api.post(`${USER_BASE_PATH}upload`, formData, {
+            // Use the new '/image' endpoint for profile pictures
+            const response = await api.post(`${USER_BASE_PATH}image`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
             return response.data; // Axios puts the actual data in .data
         } catch (error) {
-            console.error('Error uploading file ');
+            console.error('Error uploading file:', error);
+            throw error; // Re-throw error for the component to handle
         }
     },
     getFileRecords: async () => {
@@ -57,16 +59,6 @@ const fileuploadService = {
         } catch (error) {
             console.error('Error deleting file record', error);
             throw error; // Re-throw the error for further handling if needed
-        }
-    },
-    updateProfile: async (userId, userData) => {
-        try {
-            // The route is under 'auth', not 'upload'
-            const response = await api.put(`auth/profile/${userId}`, userData);
-            return response.data;
-        } catch (error) {
-            console.error('Error updating user profile:', error);
-            throw error;
         }
     },
 }

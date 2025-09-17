@@ -14,6 +14,7 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useAuth } from "@/components/auth/AuthContext";
 import fileuploadService from "@/services/api/fileupload.js";
+import AuthService from "@/services/api/auth.js";
 import { sweetAlert } from "@/components/SweetAlert/SweetAlert";
 
 function ProfilePage() {
@@ -22,6 +23,7 @@ function ProfilePage() {
   const [stats, setStats] = useState({ uploads: 0, charts: 0 });
   const [editDialogVisible, setEditDialogVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const { showSuccess, showError } = sweetAlert();
   const fileInputRef = useRef(null);
 
@@ -58,15 +60,32 @@ function ProfilePage() {
     setEditingUser((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // The result is a base64 data URL
-        handleEditChange("profilePicture", reader.result);
-      };
-      reader.readAsDataURL(file);
+      setIsUploading(true);
+      try {
+        // 1. Upload the file using the fileuploadService
+        const response = await fileuploadService.uploadFile(file);
+
+        if (response && response.filePath) {
+          // 2. Construct the full URL robustly using the URL constructor
+          // This correctly handles all slash variations in base URL and file path
+          const imageUrl = new URL(
+            response.filePath,
+            import.meta.env.VITE_BASE_URL
+          ).href;
+          // 3. Update the editing state with the new image URL
+          handleEditChange("profilePicture", imageUrl);
+        } else {
+          showError("Image upload failed. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error uploading profile picture:", error);
+        showError("An error occurred while uploading the image.");
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -80,11 +99,8 @@ function ProfilePage() {
 
   const handleEditSave = async () => {
     try {
-      // Call the API to update the user profile
-      const response = await fileuploadService.updateProfile(
-        user.id,
-        editingUser
-      );
+      // Call the API via AuthService to update the user profile
+      const response = await AuthService.updateProfile(user.id, editingUser);
       if (response && response.token) {
         // Update the user context with the new token and user data
         login(response); // This will update localStorage and the user state in AuthContext
@@ -288,7 +304,7 @@ function ProfilePage() {
           </div>
         }
         visible={editDialogVisible}
-        onHide={() => setEditDialogVisible(false)}
+        onHide={isUploading ? () => {} : () => setEditDialogVisible(false)}
         className="rounded-xl overflow-hidden shadow-2xl"
         style={{ width: "30rem", borderRadius: "1rem" }}
         modal
@@ -334,14 +350,18 @@ function ProfilePage() {
                 Profile Picture
               </label>
               <div className="mt-2 flex items-center gap-4">
-                {editingUser.profilePicture ? (
+                {isUploading ? (
+                  <div className="flex h-16 w-16 items-center justify-center">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple-200 border-t-purple-500"></div>
+                  </div>
+                ) : editingUser.profilePicture ? (
                   <img
                     src={editingUser.profilePicture}
                     alt="Profile Preview"
                     className="h-16 w-16 rounded-full object-cover shadow-sm"
                   />
                 ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-400">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-400 text-center">
                     No Image
                   </div>
                 )}
@@ -351,10 +371,15 @@ function ProfilePage() {
                     type="file"
                     id="profilePicture"
                     accept="image/*"
+                    disabled={isUploading}
                     onChange={handleFileChange}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                    onClick={(e) => {
+                      // Allow re-selecting the same file
+                      e.target.value = null;
+                    }}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 disabled:cursor-not-allowed disabled:opacity-50"
                   />
-                  {editingUser.profilePicture && (
+                  {editingUser.profilePicture && !isUploading && (
                     <button
                       type="button"
                       onClick={handleRemovePicture}
@@ -369,16 +394,18 @@ function ProfilePage() {
 
             <div className="flex justify-end gap-4 pt-6">
               <button
+                disabled={isUploading}
                 onClick={() => setEditDialogVisible(false)}
-                className="px-5 py-2 rounded-lg bg-white text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-100 hover:shadow-md transition-all duration-200 ease-in-out flex items-center gap-2"
+                className="px-5 py-2 rounded-lg bg-white text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-100 hover:shadow-md transition-all duration-200 ease-in-out flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <XMarkIcon className="w-5 h-5" />
                 Cancel
               </button>
 
               <button
+                disabled={isUploading}
                 onClick={handleEditSave}
-                className="px-5 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-200 ease-in-out flex items-center gap-2"
+                className="px-5 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-200 ease-in-out flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <CheckIcon className="w-5 h-5" />
                 Save

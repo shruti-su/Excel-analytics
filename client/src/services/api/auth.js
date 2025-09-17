@@ -51,10 +51,16 @@ const AuthService = {
             throw error; // Re-throw the error to be handled by the calling component
         }
     },
-    /**
-     * Fetches all users.
-     * @returns {Promise<Array>} A promise that resolves to an array of user objects.
-     */
+    updateProfile: async (userId, userData) => {
+        try {
+            // The route is under 'auth', so we use the USER_BASE_PATH
+            const response = await api.put(`${USER_BASE_PATH}profile/${userId}`, userData);
+            return response.data;
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+            throw error;
+        }
+    },
 
 };
 

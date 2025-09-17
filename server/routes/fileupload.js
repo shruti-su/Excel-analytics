@@ -4,12 +4,35 @@ const multer = require('multer'); // <-- Add this import
 const Upload = require('../models/upload');
 const auth = require('../middleware/authMiddleware');
 const XLSX = require('xlsx');
+const fs = require('fs');
+const path = require('path');
 
-// Set up multer for file uploads
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+// --- Multer setup for Excel file uploads (in-memory) ---
+const excelStorage = multer.memoryStorage();
+const uploadExcel = multer({ storage: excelStorage });
 
-router.post('/upload', auth, upload.single('file'), async (req, res) => {
+// --- Multer setup for image file uploads (on-disk) ---
+const imageUploadsDir = path.join(__dirname, '..', 'uploads');
+
+// Ensure the uploads directory exists
+if (!fs.existsSync(imageUploadsDir)) {
+    fs.mkdirSync(imageUploadsDir, { recursive: true });
+}
+
+const imageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, imageUploadsDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const uploadImage = multer({ storage: imageStorage });
+
+// This route is for Excel/CSV file uploads and data parsing
+router.post('/upload', auth, uploadExcel.single('file'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
@@ -38,6 +61,17 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
         res.status(500).json({ error: 'Internal server error', details: err.message }); // Added details
     }
 });
+
+// This new route is specifically for image uploads (e.g., profile pictures)
+router.post('/image', auth, uploadImage.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No image file uploaded.' });
+    }
+    // The file is saved by multer. We return the public-facing URL path.
+    const filePath = `/uploads/${req.file.filename}`;
+    res.json({ filePath: filePath });
+});
+
 // // 📋 [GET] List all 
 router.get('/getall', auth, async (req, res) => {
     try {

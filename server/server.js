@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const studentRoutes = require('./routes/student');
 const EmployeeRoutes = require('./routes/employee')
 const cors = require('cors'); // <--- ADD THIS LINE: Import the cors package
+const path = require('path');
 const auth = require('./routes/auth'); // <--- ADD THIS LINE: Import the auth routes
 const UploadRoutes = require('./routes/fileupload'); // <--- ADD THIS LINE: Import the upload routes
 dotenv.config();
@@ -43,6 +44,10 @@ mongoose.connect(mongoURI, clientOptions)
 
 // add all the routes here 
 app.use(express.json());
+
+// Serve static files from the 'uploads' directory for profile pictures
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // <--- ADD CORS CONFIGURATION HERE ---
 // Option 1: Allow all origins (good for quick development, less secure for production)
 app.use(cors());
@@ -73,5 +78,3 @@ app.use('/admin', require('./routes/admin-route')); // <--- ADD THIS LINE: Use t
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
-
-

@@ -45,6 +45,7 @@ exports.login = async (req, res) => {
                 email: user.email,
                 role: user.role, // Include role in the payload
                 profilePicture: user.profilePicture,
+                createdAt: user.createdAt,
             },
         };
         user.lastLogin = new Date(); // Update last login time
@@ -107,6 +108,7 @@ exports.signup = async (req, res) => {
                 email: user.email,
                 role: "user", // Include role in the payload
                 profilePicture: user.profilePicture,
+                createdAt: user.createdAt,
             },
         };
         try {
@@ -147,6 +149,7 @@ exports.googleLogin = async (req, res) => {
                     email: user.email,
                     role: user.role, // Include role in the payload
                     profilePicture: user.profilePicture,
+                    createdAt: user.createdAt,
                 },
             };
 
@@ -175,6 +178,7 @@ exports.googleLogin = async (req, res) => {
                 email: user.email,
                 role: user.role, // Include role in the payload
                 profilePicture: user.profilePicture,
+                createdAt: user.createdAt,
             },
         };
         const token = jwt.sign(
