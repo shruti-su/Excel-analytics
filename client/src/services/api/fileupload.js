@@ -58,9 +58,17 @@ const fileuploadService = {
             console.error('Error deleting file record', error);
             throw error; // Re-throw the error for further handling if needed
         }
-    }
-
-
+    },
+    updateProfile: async (userId, userData) => {
+        try {
+            // The route is under 'auth', not 'upload'
+            const response = await api.put(`auth/profile/${userId}`, userData);
+            return response.data;
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+            throw error;
+        }
+    },
 }
 
 

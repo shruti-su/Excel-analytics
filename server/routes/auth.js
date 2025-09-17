@@ -33,4 +33,7 @@ router.post("/forgot-password", authcontroller.forgotPassword);
 // router.post("/forgot-password", authcontroller.forgotPassword);
 router.post("/reset-password", authcontroller.resetPassword);
 
+// Route to update user profile
+router.put('/profile/:id', auth, authcontroller.updateProfile);
+
 module.exports = router;

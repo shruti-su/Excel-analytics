@@ -268,3 +268,59 @@ exports.resetPassword = async (req, res) => {
     }
 
 };
+
+exports.updateProfile = async (req, res) => {
+    // Ensure the user ID from the token matches the ID in the URL, or user is admin
+    if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+        return res.status(403).json({ msg: 'Not authorized to update this profile' });
+    }
+
+    const { name, email, profilePicture } = req.body;
+
+    try {
+        let user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        // Update fields if provided
+        if (name) user.name = name;
+        if (email) user.email = email;
+        // Check if 'profilePicture' was included in the request.
+        // This allows setting it to a falsy value (like null or an empty string) to remove it.
+        if (req.body.hasOwnProperty('profilePicture')) {
+            user.profilePicture = profilePicture;
+        }
+
+        await user.save();
+
+        // Create a new JWT with the updated user info to refresh the frontend context
+        const payload = {
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                profilePicture: user.profilePicture,
+                createdAt: user.createdAt,
+            },
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' },
+            (err, token) => {
+                if (err) throw err;
+                res.json({ token, msg: 'Profile updated successfully!' });
+            }
+        );
+    } catch (err) {
+        console.error('❌ Error updating profile:', err);
+        if (err.code === 11000) { // Handle duplicate email error
+            return res.status(400).json({ msg: 'This email is already in use.' });
+        }
+        res.status(500).json({ msg: 'Server error' });
+    }
+};
