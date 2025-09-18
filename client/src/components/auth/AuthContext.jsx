@@ -38,18 +38,19 @@ export const AuthProvider = ({ children }) => {
     validateTokenAndFetchUser();
   }, []);
 
-  const login = async (userData) => {
-    localStorage.setItem("token", userData.token); // Store only the token string
-    try {
-      // After login, fetch the full user data to populate the context
-      const fullUser = await AuthService.getMe();
-      setUser(fullUser);
+  const login = async (authResponse) => {
+    localStorage.setItem("token", authResponse.token); // Store only the token string
+
+    // The server now provides the full user object on login/signup/update
+    if (authResponse.user) {
+      setUser(authResponse.user);
       setIsAuthenticated(true);
-      return fullUser;
-    } catch (error) {
-      console.error("Failed to fetch user after login, logging out.", error);
-      logout(); // If getMe fails, the token is likely bad, so log out.
-      throw error;
+      return authResponse.user; // Return the user object for immediate use
+    } else {
+      // This is a fallback/error case. The server should always send the user object.
+      console.error("Authentication response did not include user object. Logging out.");
+      logout();
+      throw new Error("Authentication failed: No user data received from server.");
     }
   };
 

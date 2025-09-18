@@ -40,15 +40,15 @@ exports.login = async (req, res) => {
         // Create and return JWT
         const payload = {
             user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role, // Include role in the payload
-                createdAt: user.createdAt,
+                id: user.id, // Only include essential info in the token
+                role: user.role,
             },
         };
         user.lastLogin = new Date(); // Update last login time
         await user.save(); // Save the updated user with last login time
+
+        const userObject = user.toObject();
+        delete userObject.password;
 
         jwt.sign(
             payload,
@@ -56,7 +56,7 @@ exports.login = async (req, res) => {
             { expiresIn: '1d' }, // Token expires in 7 days (1 week)
             (err, token) => {
                 if (err) throw err;
-                res.json({ token, msg: 'Logged in successfully!' });
+                res.json({ token, user: userObject, msg: 'Logged in successfully!' });
             }
         );
     }
@@ -103,19 +103,19 @@ exports.signup = async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
-                name: user.name,
-                email: user.email,
-                role: "user", // Include role in the payload
-                createdAt: user.createdAt,
+                role: user.role || "user", // Default to "user" role
             },
         };
+        const userObject = user.toObject();
+        delete userObject.password;
+
         try {
             const token = jwt.sign(
                 payload,
                 process.env.JWT_SECRET,
                 { expiresIn: '1d' }
             );
-            res.json({ token, msg: 'User registered successfully!' });
+            res.json({ token, user: userObject, msg: 'User registered successfully!' });
         } catch (err) {
             console.error('❌ Error during signup:', err);
             res.status(500).json({ error: 'JWT signing failed' });
@@ -143,19 +143,19 @@ exports.googleLogin = async (req, res) => {
             const payload = {
                 user: {
                     id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role, // Include role in the payload
-                    createdAt: user.createdAt,
+                    role: user.role,
                 },
             };
+
+            const userObject = user.toObject();
+            delete userObject.password;
 
             const token = jwt.sign(
                 payload,
                 process.env.JWT_SECRET,
                 { expiresIn: '1d' }
             );
-            return res.json({ token, msg: 'Logged in successfully!' });
+            return res.json({ token, user: userObject, msg: 'Logged in successfully!' });
         }
         // If user does not exist, create a new user
         user = new User({
@@ -171,18 +171,18 @@ exports.googleLogin = async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role, // Include role in the payload
-                createdAt: user.createdAt,
+                role: user.role,
             },
         };
+        const userObject = user.toObject();
+        delete userObject.password;
+
         const token = jwt.sign(
             payload,
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
-        res.json({ token, msg: 'User registered and logged in successfully!' });
+        res.json({ token, user: userObject, msg: 'User registered and logged in successfully!' });
     } catch (err) {
         console.error('❌ Error during Google login:', err);
         res.status(500).json({ msg: 'Server error' });
@@ -289,7 +289,7 @@ exports.updateProfile = async (req, res) => {
         return res.status(403).json({ msg: 'Not authorized to update this profile' });
     }
 
-    const { name, email, profilePicture } = req.body;
+    const { name, email } = req.body;
 
     try {
         let user = await User.findById(req.params.id);
@@ -303,9 +303,7 @@ exports.updateProfile = async (req, res) => {
         if (email) user.email = email;
         // Check if 'profilePicture' was included in the request.
         // This allows setting it to a falsy value (like null or an empty string) to remove it.
-        if (req.body.hasOwnProperty('profilePicture')) {
-            user.profilePicture = profilePicture;
-        }
+        
 
         await user.save();
 
@@ -313,12 +311,12 @@ exports.updateProfile = async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
-                name: user.name,
-                email: user.email,
                 role: user.role,
-                createdAt: user.createdAt,
             },
         };
+
+        const userObject = user.toObject();
+        delete userObject.password;
 
         jwt.sign(
             payload,
@@ -326,7 +324,7 @@ exports.updateProfile = async (req, res) => {
             { expiresIn: '1d' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token, msg: 'Profile updated successfully!' });
+                res.json({ token, user: userObject, msg: 'Profile updated successfully!' });
             }
         );
     } catch (err) {

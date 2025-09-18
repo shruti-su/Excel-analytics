@@ -96,8 +96,21 @@ function ProfilePage() {
 
   const handleEditSave = async () => {
     try {
+      // Construct a payload with only the necessary fields to prevent sending
+      // the large base64 profile picture string on every update.
+      const updatePayload = {
+        name: editingUser.name,
+        email: editingUser.email,
+      };
+
+      // Only add the 'profilePicture' field to the payload if it's being removed.
+      // A new picture is uploaded and saved in a separate request, so we don't
+      // need to send the data again here.
+      if (editingUser.profilePicture === null && user.profilePicture !== null) {
+        updatePayload.profilePicture = null;
+      }
       // Call the API via AuthService to update the user profile
-      const response = await AuthService.updateProfile(user._id, editingUser);
+      const response = await AuthService.updateProfile(user._id, updatePayload);
       if (response && response.token) {
         // Update the user context with the new token and user data
         login(response); // This will update localStorage and the user state in AuthContext
