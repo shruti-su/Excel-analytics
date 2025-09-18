@@ -445,28 +445,34 @@ export default function LandingPage() {
         />
       </section>
 
-      <div className="bg-gray-50 dark:bg-gray-900/95">
-        {/* Contact Section */}
-        <section id="contact" className="px-6 py-16">
-          <div className="container mx-auto max-w-3xl">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.8 }}
-              className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl"
-            >
-              <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-white">
-                Stay Updated
+      {/* Contact Section */}
+      <section id="contact" className="px-6 py-20 bg-gray-100 dark:bg-gray-800">
+        <div className="container mx-auto max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8 }}
+            className="rounded-2xl shadow-2xl bg-white dark:bg-gray-800 overflow-hidden"
+          >
+            {/* Gradient Header Strip */}
+            <div className="h-2 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600" />
+
+            <div className="p-10">
+              <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white">
+                Get in Touch
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-8">
-                Join our newsletter for the latest updates and insights.
+              <p className="mt-2 mb-10 text-center text-gray-600 dark:text-gray-400">
+                We’d love to hear from you. Drop us a message or subscribe to
+                updates.
               </p>
+
               <form onSubmit={handleSubmit} className="grid gap-6">
                 <Input
                   name="name"
                   label="Your Name"
                   color="indigo"
+                  className="rounded-xl shadow-sm focus:shadow-md"
                   value={formData.name}
                   onChange={handleChange}
                   disabled={isSubmitting}
@@ -476,6 +482,7 @@ export default function LandingPage() {
                   label="Email Address"
                   type="email"
                   color="indigo"
+                  className="rounded-xl shadow-sm focus:shadow-md"
                   value={formData.email}
                   onChange={handleChange}
                   disabled={isSubmitting}
@@ -485,154 +492,173 @@ export default function LandingPage() {
                   label="Message / Suggestion"
                   color="indigo"
                   rows={4}
+                  className="rounded-xl shadow-sm focus:shadow-md"
                   value={formData.message}
                   onChange={handleChange}
                   disabled={isSubmitting}
                 />
                 <Button
                   type="submit"
-                  color="indigo"
                   size="lg"
-                  className="mt-2"
                   disabled={isSubmitting}
+                  className="rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-500 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300"
                 >
-                  {isSubmitting ? "Sending..." : "Send"}
+                  {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
                 {isSubmitted && (
-                  <p className="text-center text-green-500 mt-4">
-                    Thank you for your message!
+                  <p className="text-center text-green-500 font-medium mt-2">
+                    ✅ Thank you for your message!
                   </p>
                 )}
               </form>
-            </motion.div>
-          </div>
-        </section>
-      </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-      <div>
-        {/* FAQ Section */}
-        <section id="faq" className="px-6 pt-0 pb-24">
-          <div className="container mx-auto max-w-3xl">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl"
-            >
-              <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
-                Frequently Asked Questions
-              </h2>
-              <div>
-                {faqData.map((faq, index) => (
-                  <FAQItem
-                    key={index}
-                    question={faq.question}
-                    answer={faq.answer}
-                    isOpen={activeIndex === index}
+      {/* FAQ Section */}
+      <section id="faq" className="px-6 py-20 my-14 bg-white dark:bg-gray-900">
+        <div className="container mx-auto max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8 }}
+            className="p-10 bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-xl"
+          >
+            <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
+              Frequently Asked Questions
+            </h2>
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {faqData.map((faq, index) => (
+                <div key={index} className="py-4">
+                  <button
                     onClick={() => toggleFAQ(index)}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </section>
-      </div>
+                    className="flex justify-between items-center w-full text-left font-medium text-lg text-gray-800 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200"
+                  >
+                    <span>{faq.question}</span>
+                    <ChevronDownIcon
+                      className={`w-5 h-5 transform transition-transform duration-300 ${
+                        activeIndex === index
+                          ? "rotate-180 text-indigo-600"
+                          : ""
+                      }`}
+                    />
+                  </button>
+                  <div
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                      activeIndex === index ? "max-h-40 mt-3" : "max-h-0"
+                    }`}
+                  >
+                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Footer Section */}
-      <div className="bg-gray-100 dark:bg-gray-900 py-16 px-6">
-        <footer className="max-w-7xl mx-auto bg-gradient-to-r from-indigo-700 via-purple-800 to-indigo-900 text-gray-200 p-10 rounded-2xl shadow-2xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {/* About */}
-            <div>
-              <h3 className="text-lg font-bold text-white">
-                Excel Analytics Dashboard
-              </h3>
-              <p className="mt-3 text-sm text-gray-300 leading-relaxed">
-                Analyze your Excel files with ease. Upload, visualize, and
-                generate insights instantly with secure processing.
-              </p>
-            </div>
+      <div className="bg-gray-100 dark:bg-gray-900">
+        <footer className="bg-gradient-to-r from-indigo-700 via-purple-800 to-indigo-900 text-gray-200 shadow-2xl">
+          <div className="max-w-7xl mx-auto py-16 px-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              {/* About */}
+              <div>
+                <h3 className="text-lg font-bold text-white">
+                  Excel Analytics Dashboard
+                </h3>
+                <p className="mt-3 text-sm text-gray-300 leading-relaxed">
+                  Analyze your Excel files with ease. Upload, visualize, and
+                  generate insights instantly with secure processing.
+                </p>
+              </div>
 
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-md font-semibold text-white mb-3">
-                Quick Links
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    to="/"
-                    className="hover:text-purple-300 transition-colors"
-                  >
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/upload"
-                    className="hover:text-purple-300 transition-colors"
-                  >
-                    Upload
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/faq"
-                    className="hover:text-purple-300 transition-colors"
-                  >
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/contact"
-                    className="hover:text-purple-300 transition-colors"
-                  >
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
+              {/* Quick Links */}
+              <div>
+                <h4 className="text-md font-semibold text-white mb-3">
+                  Quick Links
+                </h4>
+                <ul className="space-y-2">
+                  <li>
+                    <Link
+                      to="/"
+                      className="hover:text-purple-300 transition-colors"
+                    >
+                      Home
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/upload"
+                      className="hover:text-purple-300 transition-colors"
+                    >
+                      Upload
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/faq"
+                      className="hover:text-purple-300 transition-colors"
+                    >
+                      FAQ
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/contact"
+                      className="hover:text-purple-300 transition-colors"
+                    >
+                      Contact
+                    </Link>
+                  </li>
+                </ul>
+              </div>
 
-            {/* Social */}
-            <div>
-              <h4 className="text-md font-semibold text-white mb-3">Connect</h4>
-              <div className="flex space-x-6">
-                <a
-                  href="https://github.com/"
-                  className="hover:text-purple-300 text-xl"
-                >
-                  <FaGithub />
-                </a>
-                <a
-                  href="https://linkedin.com/"
-                  className="hover:text-purple-300 text-xl"
-                >
-                  <FaLinkedin />
-                </a>
-                <a
-                  href="https://twitter.com/"
-                  className="hover:text-purple-300 text-xl"
-                >
-                  <FaTwitter />
-                </a>
-                <a
-                  href="mailto:your@email.com"
-                  className="hover:text-purple-300 text-xl"
-                >
-                  <EnvelopeIcon className="w-5 h-5" />
-                </a>
+              {/* Social */}
+              <div>
+                <h4 className="text-md font-semibold text-white mb-3">
+                  Connect
+                </h4>
+                <div className="flex space-x-6">
+                  <a
+                    href="https://github.com/"
+                    className="hover:text-purple-300 text-xl"
+                  >
+                    <FaGithub />
+                  </a>
+                  <a
+                    href="https://linkedin.com/"
+                    className="hover:text-purple-300 text-xl"
+                  >
+                    <FaLinkedin />
+                  </a>
+                  <a
+                    href="https://twitter.com/"
+                    className="hover:text-purple-300 text-xl"
+                  >
+                    <FaTwitter />
+                  </a>
+                  <a
+                    href="mailto:your@email.com"
+                    className="hover:text-purple-300 text-xl"
+                  >
+                    <EnvelopeIcon className="w-5 h-5" />
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Bottom Bar */}
-          <div className="mt-8 border-t border-purple-600 pt-4 text-center text-sm text-gray-400">
-            <p>
-              © {new Date().getFullYear()} Excel Analytics Dashboard | Made with{" "}
-              <span className="text-red-400">♥</span> by Shruti
-            </p>
+            {/* Bottom Bar */}
+            <div className="mt-8 border-t border-purple-600 pt-4 text-center text-sm text-gray-400">
+              <p>
+                © {new Date().getFullYear()} Excel Analytics Dashboard | Made
+                with <span className="text-red-400">♥</span> by Shruti
+              </p>
+            </div>
           </div>
         </footer>
       </div>
