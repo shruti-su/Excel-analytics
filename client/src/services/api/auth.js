@@ -51,6 +51,16 @@ const AuthService = {
             throw error; // Re-throw the error to be handled by the calling component
         }
     },
+     getMe: async () => {
+        try {
+            // This route gets the currently authenticated user's full profile
+            const response = await api.get(`${USER_BASE_PATH}me`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            throw error;
+        }
+    },
     updateProfile: async (userId, userData) => {
         try {
             // The route is under 'auth', so we use the USER_BASE_PATH

@@ -14,7 +14,7 @@ const fileuploadService = {
                 console.log(pair[0], pair[1]);
             }
             // Use the new '/image' endpoint for profile pictures
-            const response = await api.post(`${USER_BASE_PATH}image`, formData, {
+            const response = await api.post(`${USER_BASE_PATH}upload`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -23,6 +23,23 @@ const fileuploadService = {
         } catch (error) {
             console.error('Error uploading file:', error);
             throw error; // Re-throw error for the component to handle
+        }
+    },
+    uploadProfilePicture: async (file) => {
+        try {
+            const formData = new FormData();
+            // The key 'profilePicture' must match the field name in the multer middleware on the server
+            formData.append('profilePicture', file);
+
+            const response = await api.post(`${USER_BASE_PATH}profile-picture`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            throw error;
         }
     },
     getFileRecords: async () => {

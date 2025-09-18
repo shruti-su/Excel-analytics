@@ -1,16 +1,16 @@
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext"; // Adjust path if you renamed index.jsx
 // import {} from '@/pages'
 
 const ProtectedRoute = ({ redirectPath = "/auth/sign-in", allowedRoles }) => {
   const { isAuthenticated, userRole } = useAuth();
+  const location = useLocation();
 
   if (!isAuthenticated) {
     // Redirect them to the sign-in page if not authenticated
     // You can also pass state here to redirect back after login:
-    // return <Navigate to={redirectPath} state={{ from: location }} replace />;
-    return <Navigate to={redirectPath} replace />;
+    return <Navigate to={redirectPath} state={{ from: location }} replace />;
   }
 
   // If roles are specified, check if the user's role is allowed

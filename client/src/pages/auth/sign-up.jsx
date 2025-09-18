@@ -9,6 +9,7 @@ import { InputText } from "primereact/inputtext";
 import { FloatLabel } from "primereact/floatlabel";
 import { Password } from "primereact/password";
 
+
 export function SignUp() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -46,17 +47,31 @@ export function SignUp() {
 
   const loginWithGoogle = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const response = await AuthService.googleLogin({
-        email: user.email,
-        name: user.displayName,
-      });
-      login(response);
-      navigate("/dashboard/home");
-    } catch (error) {
-      console.error("Login error:", error);
-    }
+          const result = await signInWithPopup(auth, provider);
+          const googleUser = result.user;
+          const authResponse = await AuthService.googleLogin({
+            email: googleUser.email,
+            name: googleUser.displayName,
+            profilePicture: googleUser.photoURL,
+          });
+    
+          if (authResponse && authResponse.token) {
+            const user = await login(authResponse);
+            if (user) {
+              const from = location.state?.from?.pathname;
+              const defaultPath =
+                user.role === "admin" ? "/admin/home" : "/dashboard/home";
+              const redirectTo = defaultPath;
+              navigate(redirectTo, { replace: true });
+            }
+          }
+        } catch (error) {
+          console.error("Login error:", error);
+          setError(
+            error.response?.data?.msg ||
+              "An error occurred during Google sign-in. Please try again."
+          );
+        }
   };
 
   const handleSignUp = async (event) => {

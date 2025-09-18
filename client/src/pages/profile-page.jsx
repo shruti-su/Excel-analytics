@@ -65,24 +65,21 @@ function ProfilePage() {
     if (file) {
       setIsUploading(true);
       try {
-        // 1. Upload the file using the fileuploadService
-        const response = await fileuploadService.uploadFile(file);
+        // 1. Upload the file using the new dedicated service
+        const response = await fileuploadService.uploadProfilePicture(file);
 
         if (response && response.filePath) {
-          // 2. Construct the full URL robustly using the URL constructor
-          // This correctly handles all slash variations in base URL and file path
-          const imageUrl = new URL(
-            response.filePath,
-            import.meta.env.VITE_BASE_URL
-          ).href;
-          // 3. Update the editing state with the new image URL
+          // The server now returns a full Base64 data URL which can be used directly.
+          const imageUrl = response.filePath;
+          // 2. Update the editing state with the new image URL
           handleEditChange("profilePicture", imageUrl);
+          showSuccess("Picture uploaded. Click Save to apply changes.");
         } else {
-          showError("Image upload failed. Please try again.");
+          showError("Image upload failed. The server did not return a file path.");
         }
       } catch (error) {
         console.error("Error uploading profile picture:", error);
-        showError("An error occurred while uploading the image.");
+        showError(error.response?.data?.message || "An error occurred while uploading the image.");
       } finally {
         setIsUploading(false);
       }
@@ -100,7 +97,7 @@ function ProfilePage() {
   const handleEditSave = async () => {
     try {
       // Call the API via AuthService to update the user profile
-      const response = await AuthService.updateProfile(user.id, editingUser);
+      const response = await AuthService.updateProfile(user._id, editingUser);
       if (response && response.token) {
         // Update the user context with the new token and user data
         login(response); // This will update localStorage and the user state in AuthContext

@@ -44,7 +44,6 @@ exports.login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role, // Include role in the payload
-                profilePicture: user.profilePicture,
                 createdAt: user.createdAt,
             },
         };
@@ -107,7 +106,6 @@ exports.signup = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: "user", // Include role in the payload
-                profilePicture: user.profilePicture,
                 createdAt: user.createdAt,
             },
         };
@@ -148,7 +146,6 @@ exports.googleLogin = async (req, res) => {
                     name: user.name,
                     email: user.email,
                     role: user.role, // Include role in the payload
-                    profilePicture: user.profilePicture,
                     createdAt: user.createdAt,
                 },
             };
@@ -177,7 +174,6 @@ exports.googleLogin = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role, // Include role in the payload
-                profilePicture: user.profilePicture,
                 createdAt: user.createdAt,
             },
         };
@@ -273,6 +269,20 @@ exports.resetPassword = async (req, res) => {
 
 };
 
+exports.getProfile = async (req, res) => {
+    try {
+        // req.user.id is attached by the auth middleware from the token
+        const user = await User.findById(req.user.id).select('-password'); // Exclude password
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+        res.json(user);
+    } catch (err) {
+        console.error('❌ Error fetching profile:', err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
 exports.updateProfile = async (req, res) => {
     // Ensure the user ID from the token matches the ID in the URL, or user is admin
     if (req.user.id !== req.params.id && req.user.role !== 'admin') {
@@ -306,7 +316,6 @@ exports.updateProfile = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                profilePicture: user.profilePicture,
                 createdAt: user.createdAt,
             },
         };

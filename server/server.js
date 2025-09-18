@@ -45,9 +45,6 @@ mongoose.connect(mongoURI, clientOptions)
 // add all the routes here 
 app.use(express.json());
 
-// Serve static files from the 'uploads' directory for profile pictures
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // <--- ADD CORS CONFIGURATION HERE ---
 // Option 1: Allow all origins (good for quick development, less secure for production)
 app.use(cors());

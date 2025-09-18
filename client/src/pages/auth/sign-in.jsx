@@ -6,7 +6,7 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthContext"; // Adjust the import path as necessary
 import AuthService from "@/services/api/auth"; // Import the AuthService for API calls
 import { signInWithPopup, auth, provider } from "@/firebase";
@@ -16,8 +16,9 @@ import { FloatLabel } from "primereact/floatlabel";
 import { Password } from "primereact/password";
 
 export function SignIn() {
-  const { login, userRole } = useAuth(); // Destructure the login function from useAuth
+  const { login } = useAuth(); // Destructure the login function from useAuth
   const navigate = useNavigate(); // Hook to programmatically navigate
+  const location = useLocation(); // Hook to access location state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(""); // State for displaying error messages
@@ -59,22 +60,22 @@ export function SignIn() {
     }
 
     try {
-      const response = await AuthService.loginUser({ email, password });
+      const authResponse = await AuthService.loginUser({ email, password });
 
       // Check simulated credentials
-      if (response && response.token) {
-        login(response); // Call the login function from AuthContext with the response object
-        // 👉 Redirect based on role
-        const role = userRole() || "user"; // fallback to 'user' if undefined
-        if (role === "admin") {
-          navigate("/admin/home");
-        } else {
-          navigate("/dashboard/home");
+      if (authResponse && authResponse.token) {
+        const user = await login(authResponse); // This now returns the user or throws
+        if (user) {
+          const from = location.state?.from?.pathname;
+          const defaultPath =
+            user.role === "admin" ? "/admin/home" : "/dashboard/home";
+          const redirectTo = from || defaultPath;
+          navigate(redirectTo, { replace: true });
         }
       } else {
         // If simulated credentials don't match, set an error
         setError(
-          response.msg || "Invalid email or password. Please try again."
+          authResponse.msg || "Invalid email or password. Please try again."
         );
       }
     } catch (err) {
@@ -91,23 +92,29 @@ export function SignIn() {
   const loginWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      // console.log("Logged in user:", user);
-      await AuthService.googleLogin({
-        email: user.email,
-        name: user.displayName,
-        profilePicture: user.photoURL,
-      }).then((response) => {
-        login(response);
-        const role = userRole() || "user"; // fallback to 'user' if undefined
-        if (role === "admin") {
-          navigate("/admin/home");
-        } else {
-          navigate("/dashboard/home");
-        }
+      const googleUser = result.user;
+      const authResponse = await AuthService.googleLogin({
+        email: googleUser.email,
+        name: googleUser.displayName,
+        profilePicture: googleUser.photoURL,
       });
+
+      if (authResponse && authResponse.token) {
+        const user = await login(authResponse);
+        if (user) {
+          const from = location.state?.from?.pathname;
+          const defaultPath =
+            user.role === "admin" ? "/admin/home" : "/dashboard/home";
+          const redirectTo = defaultPath;
+          navigate(redirectTo, { replace: true });
+        }
+      }
     } catch (error) {
       console.error("Login error:", error);
+      setError(
+        error.response?.data?.msg ||
+          "An error occurred during Google sign-in. Please try again."
+      );
     }
   };
 
