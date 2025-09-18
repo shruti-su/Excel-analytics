@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button, Input, Textarea, Switch } from "@material-tailwind/react";
 import { Carousel } from "primereact/carousel";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
+import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { useAuth } from "@/components/auth/AuthContext"; // Adjust the import path as necessary
 
 import {
@@ -12,7 +12,39 @@ import {
   ChartBarIcon,
   LockClosedIcon,
   BoltIcon,
+  Bars3Icon,
+  XMarkIcon,
+  EnvelopeIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
+
+// 1. Refactor features into a data array
+const featuresData = [
+  {
+    icon: ArrowUpTrayIcon,
+    title: "Effortless Uploads",
+    description:
+      "Simply drag and drop your Excel files to instantly begin your analysis, no complex steps required.",
+  },
+  {
+    icon: ChartBarIcon,
+    title: "Instant Visualization",
+    description:
+      "Generate stunning, dynamic charts and dashboards the moment your data is uploaded.",
+  },
+  {
+    icon: LockClosedIcon,
+    title: "Secure & Private",
+    description:
+      "Your data is processed on-the-fly and is never stored, ensuring complete privacy and security.",
+  },
+  {
+    icon: BoltIcon,
+    title: "Blazing-Fast Insights",
+    description:
+      "Unlock key insights from even the largest datasets in a matter of seconds, not minutes.",
+  },
+];
 
 const testimonials = [
   {
@@ -58,17 +90,110 @@ const testimonials = [
     image: "https://randomuser.me/api/portraits/men/41.jpg",
   },
 ];
+const faqData = [
+  {
+    question: "Is my Excel data secure?",
+    answer:
+      "Your data privacy is our top priority. We never store your uploaded files. All data is processed in-memory on our servers and is completely erased once the analysis is complete.",
+  },
+  {
+    question: "What file types are supported?",
+    answer:
+      "Our platform currently supports common Microsoft Excel and spreadsheet formats, including .xls, .xlsx, and .csv files.",
+  },
+  {
+    question: "Can I download the analysis?",
+    answer:
+      "Yes. All visualizations, charts, and summary reports can be exported to various formats, including PNG, PDF, and CSV, for easy sharing and integration.",
+  },
+  {
+    question: "Do you offer customer support?",
+    answer:
+      "We offer dedicated email support for all users. You can reach out to our team at any time for assistance or to provide feedback.",
+  },
+];
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
 
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+const FAQItem = ({ question, answer, isOpen, onClick }) => (
+  <div className="border-b border-gray-200 dark:border-gray-700 py-4">
+    <button
+      onClick={onClick}
+      className="flex justify-between items-center w-full text-left font-semibold text-lg text-gray-800 dark:text-white transition-colors duration-200 hover:text-indigo-600 dark:hover:text-indigo-400"
+    >
+      <span>{question}</span>
+      <ChevronDownIcon
+        className={`w-5 h-5 transition-transform duration-300 ${
+          isOpen ? "rotate-180" : ""
+        }`}
+      />
+    </button>
+    <div
+      className={`overflow-hidden transition-max-h duration-500 ease-in-out ${
+        isOpen ? "max-h-96 mt-2" : "max-h-0"
+      }`}
+    >
+      <p className="text-gray-600 dark:text-gray-400">{answer}</p>
+    </div>
+  </div>
+);
 export default function LandingPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const { isAuthenticated, userRole } = useAuth(); // Destructure the login function from useAuth\
   const navigate = useNavigate();
 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(null); // State for the active FAQ item
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    // Simulate API call
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      console.log("Form submitted:", formData);
+      setIsSubmitted(true);
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Submission failed:", error);
+      // Display error message
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const toggleFAQ = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
   const toggleDarkMode = () => {
     document.documentElement.classList.toggle("dark");
     setDarkMode(!darkMode);
   };
+
   function go_to_dashboard_or_login() {
     try {
       if (isAuthenticated == true) {
@@ -242,79 +367,42 @@ export default function LandingPage() {
       {/* Features Section */}
       <section
         id="features"
-        className="px-6 py-24 bg-white shadow-md dark:bg-gray-800"
+        className="px-6 py-24 bg-white dark:bg-gray-900" // A darker, more modern dark mode
       >
-        <h2 className="mb-12 text-3xl font-semibold text-center text-gray-900 dark:text-white">
-          Why Excel Analytics?
-        </h2>
+        <div className="container mx-auto">
+          {/* 3. Enhanced Heading */}
+          <h2 className="mb-4 text-4xl font-bold tracking-tight text-center text-gray-900 dark:text-white sm:text-5xl">
+            Transform Your Data in Minutes
+          </h2>
+          <p className="max-w-xl mx-auto mb-16 text-xl text-center text-gray-600 dark:text-gray-400">
+            Discover why thousands trust our platform for rapid, secure, and
+            insightful Excel analytics.
+          </p>
 
-        <div className="grid grid-cols-1 gap-6 text-center md:grid-cols-4">
-          {/* Feature 1 */}
+          {/* 4. Use the data array to render features */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5 }}
-            className="p-6 bg-gray-100 shadow dark:bg-gray-700 rounded-xl hover:shadow-2xl"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }} // Animate only once when in view
+            className="grid grid-cols-1 gap-8 text-center md:grid-cols-2 lg:grid-cols-4" // Better grid responsiveness
           >
-            <ArrowUpTrayIcon className="w-10 h-10 mx-auto mb-3 text-indigo-600 dark:text-indigo-400" />
-            <p className="text-lg font-medium text-gray-900 dark:text-white">
-              Quick Uploads
-            </p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              Instantly drag and drop Excel files into the dashboard.
-            </p>
-          </motion.div>
-
-          {/* Feature 2 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="p-6 bg-gray-100 shadow dark:bg-gray-700 rounded-xl hover:shadow-2xl"
-          >
-            <ChartBarIcon className="w-10 h-10 mx-auto mb-3 text-indigo-600 dark:text-indigo-400" />
-            <p className="text-lg font-medium text-gray-900 dark:text-white">
-              Real-time Charts
-            </p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              Generate dynamic charts immediately after upload.
-            </p>
-          </motion.div>
-
-          {/* Feature 3 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="p-6 bg-gray-100 shadow dark:bg-gray-700 rounded-xl hover:shadow-2xl"
-          >
-            <LockClosedIcon className="w-10 h-10 mx-auto mb-3 text-indigo-600 dark:text-indigo-400" />
-            <p className="text-lg font-medium text-gray-900 dark:text-white">
-              Data Privacy
-            </p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              Your data remains secure and is never stored.
-            </p>
-          </motion.div>
-
-          {/* Feature 4 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="p-6 bg-gray-100 shadow dark:bg-gray-700 rounded-xl hover:shadow-2xl"
-          >
-            <BoltIcon className="w-10 h-10 mx-auto mb-3 text-indigo-600 dark:text-indigo-400" />
-            <p className="text-lg font-medium text-gray-900 dark:text-white">
-              Fast Analysis
-            </p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              Get insights from large Excel datasets in seconds.
-            </p>
+            {featuresData.map((feature, index) => (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                whileHover={{ scale: 1.05 }}
+                className="group p-8 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300" // More polished card styling
+              >
+                <feature.icon className="w-12 h-12 mx-auto mb-4 text-indigo-600 dark:text-indigo-400 group-hover:text-purple-600 transition-colors duration-300" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {feature.title}
+                </h3>
+                <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </section>
@@ -337,9 +425,15 @@ export default function LandingPage() {
                 alt={item.name}
                 className="w-16 h-16 mx-auto mb-4 rounded-full"
               />
-              <p className="italic text-gray-700 dark:text-gray-300">“{item.feedback}”</p>
-              <h4 className="mt-4 font-semibold text-gray-900 dark:text-white">- {item.name}</h4>
-              <span className="text-sm text-gray-500 dark:text-gray-400">{item.position}</span>
+              <p className="italic text-gray-700 dark:text-gray-300">
+                “{item.feedback}”
+              </p>
+              <h4 className="mt-4 font-semibold text-gray-900 dark:text-white">
+                - {item.name}
+              </h4>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {item.position}
+              </span>
             </div>
           )}
           numVisible={1}
@@ -351,59 +445,197 @@ export default function LandingPage() {
         />
       </section>
 
-      {/* Contact Form / Newsletter */}
-      <section id="contact" className="px-6 py-24 bg-white dark:bg-gray-800">
-        <h2 className="mb-10 text-3xl font-semibold text-center">
-          Stay Updated
-        </h2>
-        <form className="grid max-w-xl gap-6 mx-auto">
-          <Input
-            size="lg"
-            label="Your Name"
-            color="indigo"
-            className="bg-white dark:bg-gray-900"
-          />
-          <Input
-            size="lg"
-            label="Email Address"
-            color="indigo"
-            className="bg-white dark:bg-gray-900"
-          />
-          <Textarea
-            label="Message / Suggestion"
-            color="indigo"
-            className="bg-white dark:bg-gray-900"
-            rows={4}
-          />
-          <Button color="indigo" size="lg">
-            Send
-          </Button>
-        </form>
-      </section>
+      <div className="bg-gray-50 dark:bg-gray-900/95">
+        {/* Contact Section */}
+        <section id="contact" className="px-6 py-16">
+          <div className="container mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8 }}
+              className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl"
+            >
+              <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-white">
+                Stay Updated
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-8">
+                Join our newsletter for the latest updates and insights.
+              </p>
+              <form onSubmit={handleSubmit} className="grid gap-6">
+                <Input
+                  name="name"
+                  label="Your Name"
+                  color="indigo"
+                  value={formData.name}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                />
+                <Input
+                  name="email"
+                  label="Email Address"
+                  type="email"
+                  color="indigo"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                />
+                <Textarea
+                  name="message"
+                  label="Message / Suggestion"
+                  color="indigo"
+                  rows={4}
+                  value={formData.message}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                />
+                <Button
+                  type="submit"
+                  color="indigo"
+                  size="lg"
+                  className="mt-2"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending..." : "Send"}
+                </Button>
+                {isSubmitted && (
+                  <p className="text-center text-green-500 mt-4">
+                    Thank you for your message!
+                  </p>
+                )}
+              </form>
+            </motion.div>
+          </div>
+        </section>
+      </div>
 
-      {/* FAQ Section */}
-      <footer className="px-6 py-24 text-gray-800 bg-gray-100 dark:bg-gray-900 dark:text-white">
-        <h2 className="mb-10 text-3xl font-semibold text-center">
-          Frequently Asked Questions
-        </h2>
-        <div className="max-w-3xl mx-auto space-y-6">
-          <div>
-            <h4 className="font-bold">Is my Excel data secure?</h4>
+      <div>
+        {/* FAQ Section */}
+        <section id="faq" className="px-6 pt-0 pb-24">
+          <div className="container mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl"
+            >
+              <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
+                Frequently Asked Questions
+              </h2>
+              <div>
+                {faqData.map((faq, index) => (
+                  <FAQItem
+                    key={index}
+                    question={faq.question}
+                    answer={faq.answer}
+                    isOpen={activeIndex === index}
+                    onClick={() => toggleFAQ(index)}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </div>
+
+      {/* Footer Section */}
+      <div className="bg-gray-100 dark:bg-gray-900 py-16 px-6">
+        <footer className="max-w-7xl mx-auto bg-gradient-to-r from-indigo-700 via-purple-800 to-indigo-900 text-gray-200 p-10 rounded-2xl shadow-2xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {/* About */}
+            <div>
+              <h3 className="text-lg font-bold text-white">
+                Excel Analytics Dashboard
+              </h3>
+              <p className="mt-3 text-sm text-gray-300 leading-relaxed">
+                Analyze your Excel files with ease. Upload, visualize, and
+                generate insights instantly with secure processing.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-md font-semibold text-white mb-3">
+                Quick Links
+              </h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    to="/"
+                    className="hover:text-purple-300 transition-colors"
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/upload"
+                    className="hover:text-purple-300 transition-colors"
+                  >
+                    Upload
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/faq"
+                    className="hover:text-purple-300 transition-colors"
+                  >
+                    FAQ
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="hover:text-purple-300 transition-colors"
+                  >
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Social */}
+            <div>
+              <h4 className="text-md font-semibold text-white mb-3">Connect</h4>
+              <div className="flex space-x-6">
+                <a
+                  href="https://github.com/"
+                  className="hover:text-purple-300 text-xl"
+                >
+                  <FaGithub />
+                </a>
+                <a
+                  href="https://linkedin.com/"
+                  className="hover:text-purple-300 text-xl"
+                >
+                  <FaLinkedin />
+                </a>
+                <a
+                  href="https://twitter.com/"
+                  className="hover:text-purple-300 text-xl"
+                >
+                  <FaTwitter />
+                </a>
+                <a
+                  href="mailto:your@email.com"
+                  className="hover:text-purple-300 text-xl"
+                >
+                  <EnvelopeIcon className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="mt-8 border-t border-purple-600 pt-4 text-center text-sm text-gray-400">
             <p>
-              Yes. We never store your files and all processing is done
-              securely.
+              © {new Date().getFullYear()} Excel Analytics Dashboard | Made with{" "}
+              <span className="text-red-400">♥</span> by Shruti
             </p>
           </div>
-          <div>
-            <h4 className="font-bold">What file types are supported?</h4>
-            <p>Currently we support .xls, .xlsx, and .csv files.</p>
-          </div>
-          <div>
-            <h4 className="font-bold">Can I download the analysis?</h4>
-            <p>Yes. Visualizations and summaries can be exported easily.</p>
-          </div>
-        </div>
-      </footer>
-    </div >
+        </footer>
+      </div>
+    </div>
   );
 }
